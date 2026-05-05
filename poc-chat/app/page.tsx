@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatSidebar } from "./components/ChatSidebar";
+import { MessageThread } from "./components/MessageThread";
 import { useTheme } from "./context/ThemeContext";
 import { useConversation } from "./hooks/useConversation";
 
@@ -25,6 +26,18 @@ export default function Home() {
     string | null
   >(null);
   const [renameTitleDraft, setRenameTitleDraft] = useState("");
+
+  const messageInputRef = useRef<HTMLInputElement>(null);
+  const prevAwaitingAssistant = useRef(isAwaitingAssistant);
+
+  useEffect(() => {
+    const wasAwaiting = prevAwaitingAssistant.current;
+    prevAwaitingAssistant.current = isAwaitingAssistant;
+    if (!wasAwaiting || isAwaitingAssistant || renameConversationId) return;
+    queueMicrotask(() => {
+      messageInputRef.current?.focus();
+    });
+  }, [isAwaitingAssistant, renameConversationId]);
 
   useEffect(() => {
     if (!renameConversationId) return;
@@ -75,47 +88,17 @@ export default function Home() {
       />
 
       {/* Main area */}
-      <main className="flex flex-col flex-1 min-w-0">
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {messages.length === 0 ? (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-gray-400 dark:text-[#dddddd] text-base">
-                Start a conversation below
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {messages.map((message) =>
-                message.role === "user" ? (
-                  <div key={message.id} className="flex justify-end">
-                    <div className="max-w-[75%] rounded-2xl px-4 py-2 text-sm bg-blue-500 text-white dark:bg-[#444444] dark:text-[#f1f1f1] break-words">
-                      {message.content}
-                    </div>
-                  </div>
-                ) : (
-                  <div key={message.id} className="flex justify-start">
-                    <div className="max-w-[75%] rounded-2xl px-4 py-2 text-sm bg-gray-100 text-gray-900 dark:bg-[#161616] dark:text-[#d4d4d4] border border-gray-200 dark:border-[#2e2e2e] break-words">
-                      {message.content}
-                    </div>
-                  </div>
-                ),
-              )}
-              {isAwaitingAssistant ? (
-                <div className="flex justify-start">
-                  <div className="rounded-2xl px-4 py-2 text-sm bg-gray-100 dark:bg-[#161616] border border-gray-200 dark:border-[#2e2e2e] text-gray-500 dark:text-[#888888] animate-pulse">
-                    …
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          )}
-        </div>
+      <main className="flex min-w-0 flex-1 flex-col">
+        <MessageThread
+          messages={messages}
+          isAwaitingAssistant={isAwaitingAssistant}
+        />
 
         {/* Input bar */}
         <div className="p-4 border-t border-gray-100 dark:border-[#2e2e2e]">
           <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-[#2e2e2e] rounded-xl px-4 py-2">
             <input
+              ref={messageInputRef}
               className="flex-1 bg-transparent text-sm text-gray-800 dark:text-[#cccccc] outline-none placeholder-gray-400 dark:placeholder-[#555555] disabled:opacity-60 disabled:cursor-not-allowed"
               placeholder={
                 isAwaitingAssistant
