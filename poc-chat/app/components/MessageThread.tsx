@@ -1,11 +1,10 @@
 "use client";
 
-import type { ChatMessage } from "../types/conversation";
+import { Message, SenderType } from "../types/message";
 
 export type MessageThreadProps = {
-  messages: ChatMessage[];
+  messages: Message[];
   isAwaitingAssistant: boolean;
-  /** Shown when there are no messages yet */
   emptyHint?: string;
 };
 
@@ -25,7 +24,7 @@ export function MessageThread({
       ) : (
         <div className="flex flex-col gap-3">
           {messages.map((message) =>
-            message.role === "user" ? (
+            message.sender === SenderType.USER ? (
               <div key={message.id} className="flex justify-end">
                 <div className="max-w-[75%] break-words rounded-2xl bg-blue-500 px-4 py-2 text-sm text-white dark:bg-[#444444] dark:text-[#f1f1f1]">
                   {message.content}
