@@ -1,59 +1,127 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  createChatMessage,
-  createConversation,
-  type ChatMessage,
-  type Conversation,
-} from "../types/conversation";
+  createConversation as createConversationApi,
+  deleteConversation as deleteConversationApi,
+  getConversations,
+  updateConversation as updateConversationApi,
+} from "../api/services/conversations";
+import {
+  getMessages,
+  sendMessage as sendMessageApi,
+  waitForAssistantReply,
+} from "../api/services/messages";
+import { getOrCreateUser } from "../api/services/users";
+import { type Conversation } from "../types/conversation";
+import { SenderType } from "../types/message";
 
-const MOCK_ASSISTANT_REPLIES = [
-  "Got it — here’s a quick thought on that.",
-  "Interesting point. Can you say more about what you’re trying to build?",
-  "Thanks for the context. I’d approach this in two steps.",
-  "Noted. One caveat: watch out for race conditions if calls overlap.",
-  "Here’s a concise summary of what I’d try next.",
-];
-
-function mockAssistantReply(): Promise<string> {
-  const delayMs = 700 + Math.floor(Math.random() * 900);
-  const text =
-    MOCK_ASSISTANT_REPLIES[
-      Math.floor(Math.random() * MOCK_ASSISTANT_REPLIES.length)
-    ] ?? "OK.";
-  return new Promise((resolve) => setTimeout(() => resolve(text), delayMs));
-}
+const DRAFT_CONVERSATION_ID = "__draft__";
 
 export type UseConversationResult = {
   conversations: Conversation[];
   activeConversationId: string;
-  setActiveConversationId: Dispatch<SetStateAction<string>>;
-  messages: ChatMessage[];
+  selectConversation: (conversationId: string) => void;
+  messages: Conversation["messages"];
   isAwaitingAssistant: boolean;
+  isLoading: boolean;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   handleNewChat: () => void;
-  sendMessage: () => void;
-  deleteConversation: (conversationId: string) => void;
-  setConversationTitle: (conversationId: string, title: string) => void;
+  sendMessage: () => Promise<void>;
+  deleteConversation: (conversationId: string) => Promise<void>;
+  setConversationTitle: (
+    conversationId: string,
+    title: string,
+  ) => Promise<void>;
 };
 
+function normalizeConversation(conversation: Conversation): Conversation {
+  return {
+    ...conversation,
+    messages: conversation.messages ?? [],
+  };
+}
+
 export function useConversation(): UseConversationResult {
-  const initialConversation = useMemo(() => createConversation(), []);
-  const [conversations, setConversations] = useState<Conversation[]>([
-    initialConversation,
-  ]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState(
-    initialConversation.id,
+    DRAFT_CONVERSATION_ID,
   );
   const [input, setInput] = useState("");
-  const [awaitingAssistantByConversationId, setAwaitingAssistantByConversationId] =
-    useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [
+    awaitingAssistantByConversationId,
+    setAwaitingAssistantByConversationId,
+  ] = useState<Record<string, boolean>>({});
+
+  const loadMessages = useCallback(async (conversationId: string) => {
+    if (conversationId === DRAFT_CONVERSATION_ID) return;
+
+    const messages = await getMessages(conversationId);
+    setConversations((prev) =>
+      prev.map((conversation) =>
+        conversation.id === conversationId
+          ? { ...conversation, messages }
+          : conversation,
+      ),
+    );
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function initialize() {
+      try {
+        await getOrCreateUser();
+        const response = await getConversations();
+        if (cancelled) return;
+
+        const normalized = response.map(normalizeConversation);
+
+        if (normalized.length === 0) {
+          setConversations([
+            {
+              id: DRAFT_CONVERSATION_ID,
+              title: "New chat",
+              messages: [],
+            },
+          ]);
+          setActiveConversationId(DRAFT_CONVERSATION_ID);
+          return;
+        }
+
+        const firstConversation = normalized[0];
+        const messages = await getMessages(firstConversation.id);
+        if (cancelled) return;
+
+        setConversations(
+          normalized.map((conversation) =>
+            conversation.id === firstConversation.id
+              ? { ...conversation, messages }
+              : conversation,
+          ),
+        );
+        setActiveConversationId(firstConversation.id);
+      } catch (err) {
+        console.error("Failed to load conversations", err);
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void initialize();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const activeConversation = conversations.find(
-    (c) => c.id === activeConversationId,
+    (conversation) => conversation.id === activeConversationId,
   );
   const messages = activeConversation?.messages ?? [];
   const isAwaitingAssistant =
@@ -61,95 +129,194 @@ export function useConversation(): UseConversationResult {
     Boolean(awaitingAssistantByConversationId[activeConversationId]);
 
   function handleNewChat() {
-    const next = createConversation();
-    setConversations((prev) => [next, ...prev]);
-    setActiveConversationId(next.id);
+    setConversations((prev) => {
+      if (prev.some((conversation) => conversation.id === DRAFT_CONVERSATION_ID)) {
+        return prev;
+      }
+
+      return [
+        {
+          id: DRAFT_CONVERSATION_ID,
+          title: "New chat",
+          messages: [],
+        },
+        ...prev.filter((conversation) => conversation.id !== DRAFT_CONVERSATION_ID),
+      ];
+    });
+    setActiveConversationId(DRAFT_CONVERSATION_ID);
     setInput("");
   }
 
-  /** Removes the conversation locally. Future: DELETE /api/conversations/:id */
-  function deleteConversation(conversationId: string) {
+  function selectConversation(conversationId: string) {
+    setActiveConversationId(conversationId);
+    void loadMessages(conversationId);
+  }
+
+  async function deleteConversation(conversationId: string) {
+    if (conversationId === DRAFT_CONVERSATION_ID) {
+      handleNewChat();
+      return;
+    }
+
+    try {
+      await deleteConversationApi(conversationId);
+    } catch (err) {
+      console.error("Failed to delete conversation", err);
+      return;
+    }
+
     setAwaitingAssistantByConversationId((prev) => {
       const next = { ...prev };
       delete next[conversationId];
       return next;
     });
 
-    const filtered = conversations.filter((c) => c.id !== conversationId);
-    const nextList =
-      filtered.length === 0 ? [createConversation()] : filtered;
-    setConversations(nextList);
+    const filtered = conversations.filter(
+      (conversation) => conversation.id !== conversationId,
+    );
+
+    if (filtered.length === 0) {
+      setConversations([
+        {
+          id: DRAFT_CONVERSATION_ID,
+          title: "New chat",
+          messages: [],
+        },
+      ]);
+      setActiveConversationId(DRAFT_CONVERSATION_ID);
+      setInput("");
+      return;
+    }
+
+    setConversations(filtered);
 
     if (activeConversationId === conversationId) {
-      if (filtered.length === 0) {
-        setActiveConversationId(nextList[0].id);
-      } else {
-        const deletedIndex = conversations.findIndex(
-          (c) => c.id === conversationId,
-        );
-        const neighbor =
-          filtered[deletedIndex] ??
-          filtered[deletedIndex - 1] ??
-          filtered[0];
-        setActiveConversationId(neighbor.id);
-      }
+      const deletedIndex = conversations.findIndex(
+        (conversation) => conversation.id === conversationId,
+      );
+      const neighbor =
+        filtered[deletedIndex] ??
+        filtered[deletedIndex - 1] ??
+        filtered[0];
+      setActiveConversationId(neighbor.id);
+      void loadMessages(neighbor.id);
       setInput("");
     }
   }
 
-  /** Future: PATCH /api/conversations/:id { title } */
-  function setConversationTitle(conversationId: string, title: string) {
+  async function setConversationTitle(conversationId: string, title: string) {
     const nextTitle = title.trim() || "New chat";
+
+    if (conversationId === DRAFT_CONVERSATION_ID) {
+      setConversations((prev) =>
+        prev.map((conversation) =>
+          conversation.id === conversationId
+            ? { ...conversation, title: nextTitle }
+            : conversation,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await updateConversationApi(conversationId, nextTitle);
+    } catch (err) {
+      console.error("Failed to rename conversation", err);
+      return;
+    }
+
     setConversations((prev) =>
-      prev.map((c) =>
-        c.id === conversationId ? { ...c, title: nextTitle } : c,
+      prev.map((conversation) =>
+        conversation.id === conversationId
+          ? { ...conversation, title: nextTitle }
+          : conversation,
       ),
     );
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     const trimmedInput = input.trim();
-    if (!trimmedInput || isAwaitingAssistant) return;
+    if (!trimmedInput || isAwaitingAssistant || !activeConversationId) return;
 
     const convId = activeConversationId;
-    const userMessage = createChatMessage(trimmedInput, "user");
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === convId
-          ? { ...c, messages: [...c.messages, userMessage] }
-          : c,
-      ),
-    );
+    let awaitingConversationId = convId;
     setAwaitingAssistantByConversationId((prev) => ({
       ...prev,
       [convId]: true,
     }));
     setInput("");
 
-    void (async () => {
-      const replyText = await mockAssistantReply();
-      const assistantMessage = createChatMessage(replyText, "assistant");
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.id === convId
-            ? { ...c, messages: [...c.messages, assistantMessage] }
-            : c,
-        ),
-      );
+    try {
+      let targetConversationId = convId;
+      let userMessageId: string;
+
+      if (convId === DRAFT_CONVERSATION_ID) {
+        const user = await getOrCreateUser();
+        const title = trimmedInput.slice(0, 50) || "New chat";
+        const created = normalizeConversation(
+          await createConversationApi(user, title, {
+            content: trimmedInput,
+            sender: SenderType.USER,
+          }),
+        );
+        const createdMessages = await getMessages(created.id);
+        const userMessage =
+          createdMessages.find(
+            (message) => message.sender === SenderType.USER,
+          ) ?? createdMessages[createdMessages.length - 1];
+
+        if (!userMessage) {
+          throw new Error("User message was not created");
+        }
+
+        userMessageId = userMessage.id;
+
+        setConversations((prev) => [
+          { ...created, messages: createdMessages },
+          ...prev.filter(
+            (conversation) => conversation.id !== DRAFT_CONVERSATION_ID,
+          ),
+        ]);
+        setActiveConversationId(created.id);
+        targetConversationId = created.id;
+        awaitingConversationId = created.id;
+      } else {
+        const userMessage = await sendMessageApi(convId, trimmedInput);
+        userMessageId = userMessage.id;
+
+        setConversations((prev) =>
+          prev.map((conversation) =>
+            conversation.id === convId
+              ? {
+                  ...conversation,
+                  messages: [...conversation.messages, userMessage],
+                }
+              : conversation,
+          ),
+        );
+      }
+
+      await waitForAssistantReply(targetConversationId, userMessageId);
+      await loadMessages(targetConversationId);
+    } catch (err) {
+      console.error("Failed to send message", err);
+    } finally {
       setAwaitingAssistantByConversationId((prev) => {
         const next = { ...prev };
         delete next[convId];
+        delete next[awaitingConversationId];
         return next;
       });
-    })();
+    }
   }
 
   return {
     conversations,
     activeConversationId,
-    setActiveConversationId,
+    selectConversation,
     messages,
     isAwaitingAssistant,
+    isLoading,
     input,
     setInput,
     handleNewChat,

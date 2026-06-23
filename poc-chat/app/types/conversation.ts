@@ -1,34 +1,10 @@
-export type MessageRole = "user" | "assistant";
-
-export type ChatMessage = {
-  id: string;
-  content: string;
-  role: MessageRole;
-  sentAt: Date;
-};
+import { Message } from "./message";
+import { User } from "./user";
 
 export type Conversation = {
   id: string;
   title: string;
-  messages: ChatMessage[];
+  messages: Message[];
+  user?: User;
+  createdAt?: string;
 };
-
-export function createConversation(title = "New chat"): Conversation {
-  return {
-    id: crypto.randomUUID(),
-    title,
-    messages: [],
-  };
-}
-
-export function createChatMessage(
-  content: string,
-  role: MessageRole = "user",
-): ChatMessage {
-  return {
-    id: crypto.randomUUID(),
-    content,
-    role,
-    sentAt: new Date(),
-  };
-}
