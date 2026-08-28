@@ -93,7 +93,8 @@ export function useConversation(): UseConversationResult {
 
     async function initialize() {
       try {
-        const response = await getConversations();
+        if (!user) return
+        const response = await getConversations(user?.id);
         if (cancelled) return;
 
         const normalized = response.map(normalizeConversation);

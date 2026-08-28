@@ -9,7 +9,10 @@ import { apiFetch } from "../client";
 export async function login(credentials: LoginCredentials) {
   return apiFetch<AuthResponse>("/auth/login", {
     method: "POST",
-    body: JSON.stringify(credentials),
+    body: JSON.stringify({
+      identifier: credentials.identifier,
+      password: btoa(credentials.password)
+    }),
     auth: false,
   });
 }
@@ -17,7 +20,11 @@ export async function login(credentials: LoginCredentials) {
 export async function register(credentials: RegisterCredentials) {
   return apiFetch<AuthResponse>("/auth/register", {
     method: "POST",
-    body: JSON.stringify(credentials),
+    body: JSON.stringify({
+      username: credentials.username,
+      email: credentials.email,
+      password: btoa(credentials.password)
+    }),
     auth: false,
   });
 }

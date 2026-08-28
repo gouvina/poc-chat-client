@@ -3,8 +3,8 @@ import { CreateMessagePayload } from "@/app/types/message";
 import { User } from "@/app/types/user";
 import { apiFetch } from "../client";
 
-export async function getConversations() {
-  return apiFetch<Conversation[]>("/conversations");
+export async function getConversations(userId: string) {
+  return apiFetch<Conversation[]>(`/conversations/${userId}`);
 }
 
 export async function getConversation(id: string) {
