@@ -126,7 +126,7 @@ export default function Home() {
                   isAwaitingAssistant ? "Waiting for reply…" : "Type a message..."
                 }
                 value={input}
-                disabled={isLoading || isAwaitingAssistant || isChatDisabled}
+                disabled={isLoading /*|| isAwaitingAssistant*/ || isChatDisabled}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {

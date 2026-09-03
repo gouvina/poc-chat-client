@@ -80,21 +80,17 @@ export function useConversation(): UseConversationResult {
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      setConversations([]);
-      setActiveConversationId(DRAFT_CONVERSATION_ID);
-      setInput("");
-      setAwaitingAssistantByConversationId({});
-      setIsLoading(false);
       return;
     }
 
+    const activeUser = user;
     let cancelled = false;
-    setIsLoading(true);
 
     async function initialize() {
+      setIsLoading(true);
+
       try {
-        if (!user) return
-        const response = await getConversations(user?.id);
+        const response = await getConversations(activeUser.id);
         if (cancelled) return;
 
         const normalized = response.map(normalizeConversation);
@@ -133,11 +129,16 @@ export function useConversation(): UseConversationResult {
     };
   }, [isAuthenticated, user]);
 
-  const activeConversation = conversations.find(
-    (conversation) => conversation.id === activeConversationId,
-  );
+  const isSessionActive = isAuthenticated && user !== null;
+
+  const activeConversation = isSessionActive
+    ? conversations.find(
+        (conversation) => conversation.id === activeConversationId,
+      )
+    : undefined;
   const messages = activeConversation?.messages ?? [];
   const isAwaitingAssistant =
+    isSessionActive &&
     Boolean(activeConversationId) &&
     Boolean(awaitingAssistantByConversationId[activeConversationId]);
 
@@ -315,13 +316,15 @@ export function useConversation(): UseConversationResult {
   }
 
   return {
-    conversations,
-    activeConversationId,
+    conversations: isSessionActive ? conversations : [],
+    activeConversationId: isSessionActive
+      ? activeConversationId
+      : DRAFT_CONVERSATION_ID,
     selectConversation,
     messages,
     isAwaitingAssistant,
-    isLoading,
-    input,
+    isLoading: isSessionActive ? isLoading : false,
+    input: isSessionActive ? input : "",
     setInput,
     handleNewChat,
     sendMessage,

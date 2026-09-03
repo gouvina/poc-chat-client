@@ -10,7 +10,11 @@ import {
   type ReactNode,
 } from "react";
 import { getMe, login as loginApi, register as registerApi } from "../api/services/auth";
-import { getStoredToken, setStoredToken } from "../api/client";
+import {
+  AUTH_SESSION_EXPIRED_EVENT,
+  getStoredAccessToken,
+  setStoredTokens,
+} from "../api/client";
 import type { LoginCredentials, RegisterCredentials } from "../types/auth";
 import type { User } from "../types/user";
 
@@ -30,10 +34,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const handleSessionExpired = () => {
+      setUser(null);
+    };
+
+    window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+    return () => {
+      window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+    };
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function restoreSession() {
-      const token = getStoredToken();
+      const token = getStoredAccessToken();
       if (!token) {
         setIsLoading(false);
         return;
@@ -45,7 +60,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(profile);
         }
       } catch {
-        setStoredToken(null);
         if (!cancelled) {
           setUser(null);
         }
@@ -63,15 +77,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const applyAuthResponse = useCallback((accessToken: string, nextUser: User) => {
-    setStoredToken(accessToken);
+  const applyAuthResponse = useCallback((accessToken: string, refreshToken: string, nextUser: User) => {
+    setStoredTokens(accessToken, refreshToken);
     setUser(nextUser);
   }, []);
 
   const login = useCallback(
     async (credentials: LoginCredentials) => {
       const response = await loginApi(credentials);
-      applyAuthResponse(response.accessToken, response.user);
+      applyAuthResponse(response.accessToken, response.refreshToken, response.user);
     },
     [applyAuthResponse],
   );
@@ -79,13 +93,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (credentials: RegisterCredentials) => {
       const response = await registerApi(credentials);
-      applyAuthResponse(response.accessToken, response.user);
+      applyAuthResponse(response.accessToken, response.refreshToken, response.user);
     },
     [applyAuthResponse],
   );
 
   const logout = useCallback(() => {
-    setStoredToken(null);
+    setStoredTokens(null, null);
     setUser(null);
   }, []);
 
