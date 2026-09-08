@@ -258,8 +258,9 @@ export function useConversation(): UseConversationResult {
 
       if (convId === DRAFT_CONVERSATION_ID) {
         const title = trimmedInput.slice(0, 50) || "New chat";
+        const createConversationUser = {id: user.id, email: user.email}
         const created = normalizeConversation(
-          await createConversationApi(user, title, {
+          await createConversationApi(createConversationUser, title, {
             content: trimmedInput,
             sender: SenderType.USER,
           }),

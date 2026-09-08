@@ -113,7 +113,7 @@ export default function Home() {
           ) : (
             <MessageThread
               messages={messages}
-              isAwaitingAssistant={isAwaitingAssistant}
+              isAwaitingAssistant={false}//{isAwaitingAssistant}
             />
           )}
 

@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 export function LoginModal() {
   const { login } = useAuth();
-  const [identifier, setIdentifier] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,10 +18,10 @@ export function LoginModal() {
     setIsSubmitting(true);
 
     try {
-      await login({ identifier, password });
+      await login({ email, password });
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        setError("Invalid email/username or password.");
+        setError("Invalid email or password.");
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -56,19 +56,19 @@ export function LoginModal() {
         <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
           <div>
             <label
-              htmlFor="login-identifier"
+              htmlFor="login-email"
               className="mb-1 block text-xs font-medium text-gray-600 dark:text-[#aaaaaa]"
             >
-              Email or username
+              Email
             </label>
             <input
-              id="login-identifier"
+              id="login-email"
               autoFocus
               required
-              autoComplete="username"
+              autoComplete="email"
               className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-[#3a3a3a] dark:bg-[#1a1a1a] dark:text-[#e0e0e0] dark:focus:border-[#555555]"
-              value={identifier}
-              onChange={(event) => setIdentifier(event.target.value)}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </div>
 

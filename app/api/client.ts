@@ -130,7 +130,6 @@ export async function apiFetch<T>(
 
       response = await makeRequest(token)
     } catch {
-      notifyAuthSessionExpired()
       throw new ApiError(401, "Authentication session expired")
     }
   }

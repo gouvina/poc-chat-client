@@ -13,7 +13,6 @@ export default function RegisterPage() {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
 
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,11 +24,11 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await register({ username, email, password });
+      await register({ email, password });
       router.replace("/");
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
-        setError("That email or username is already taken.");
+        setError("That email is already taken.");
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -61,28 +60,6 @@ export default function RegisterPage() {
         </p>
 
         <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="register-username"
-              className="mb-1 block text-xs font-medium text-gray-600 dark:text-[#aaaaaa]"
-            >
-              Username
-            </label>
-            <input
-              id="register-username"
-              autoFocus
-              required
-              autoComplete="username"
-              minLength={3}
-              maxLength={30}
-              pattern="^[a-zA-Z0-9_]+$"
-              title="Letters, numbers, and underscores only"
-              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-[#3a3a3a] dark:bg-[#1a1a1a] dark:text-[#e0e0e0] dark:focus:border-[#555555]"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-            />
-          </div>
-
           <div>
             <label
               htmlFor="register-email"

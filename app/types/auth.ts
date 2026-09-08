@@ -7,12 +7,11 @@ export type AuthResponse = {
 };
 
 export type LoginCredentials = {
-  identifier: string;
+  email: string;
   password: string;
 };
 
 export type RegisterCredentials = {
-  username: string;
   email: string;
   password: string;
 };

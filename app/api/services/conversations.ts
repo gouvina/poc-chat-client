@@ -4,7 +4,7 @@ import { User } from "@/app/types/user";
 import { apiFetch } from "../client";
 
 export async function getConversations(userId: string) {
-  return apiFetch<Conversation[]>(`/conversations/${userId}`);
+  return apiFetch<Conversation[]>(`/conversations?userId=${userId}`);
 }
 
 export async function getConversation(id: string) {
