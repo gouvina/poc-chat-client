@@ -240,7 +240,7 @@ export function useConversation(): UseConversationResult {
 
   async function sendMessage() {
     const trimmedInput = input.trim();
-    if (!trimmedInput || isAwaitingAssistant || !activeConversationId || !user) {
+    if (!trimmedInput || /*isAwaitingAssistant ||*/ !activeConversationId || !user) {
       return;
     }
 

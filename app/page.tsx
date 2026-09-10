@@ -138,7 +138,7 @@ export default function Home() {
               <button
                 className="rounded-lg bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:opacity-40 dark:bg-[#444444] dark:text-[#cccccc] dark:hover:bg-[#4a4a4a]"
                 disabled={
-                  isLoading || !input.trim() || isAwaitingAssistant || isChatDisabled
+                  isLoading || !input.trim() || /*isAwaitingAssistant ||*/ isChatDisabled
                 }
                 onClick={() => void sendMessage()}
               >
