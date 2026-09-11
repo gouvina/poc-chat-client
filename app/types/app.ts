@@ -1,0 +1,1 @@
+export type Section = "chat" | "documents" | "query";
