@@ -35,6 +35,12 @@ export type UseConversationResult = {
     conversationId: string,
     title: string,
   ) => Promise<void>;
+  renameConversationId: string | null;
+  renameTitleDraft: string;
+  setRenameTitleDraft: Dispatch<SetStateAction<string>>;
+  requestRename: (conversationId: string, currentTitle: string) => void;
+  confirmRename: () => Promise<void>;
+  cancelRename: () => void;
 };
 
 function normalizeConversation(conversation: Conversation): Conversation {
@@ -54,6 +60,7 @@ function createDraftConversation(): Conversation {
 
 export function useConversation(): UseConversationResult {
   const { user, isAuthenticated } = useAuth();
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState(
     DRAFT_CONVERSATION_ID,
@@ -64,6 +71,27 @@ export function useConversation(): UseConversationResult {
     awaitingAssistantByConversationId,
     setAwaitingAssistantByConversationId,
   ] = useState<Record<string, boolean>>({});
+  const [renameConversationId, setRenameConversationId] = useState<string | null>(
+    null,
+  );
+  const [renameTitleDraft, setRenameTitleDraft] = useState("");
+
+  function requestRename(conversationId: string, currentTitle: string) {
+    setRenameConversationId(conversationId);
+    setRenameTitleDraft(currentTitle);
+  }
+
+  async function confirmRename() {
+    if (!renameConversationId) return;
+    await setConversationTitle(renameConversationId, renameTitleDraft);
+    setRenameConversationId(null);
+    setRenameTitleDraft("");
+  }
+
+  function cancelRename() {
+    setRenameConversationId(null);
+    setRenameTitleDraft("");
+  }
 
   const loadMessages = useCallback(async (conversationId: string) => {
     if (conversationId === DRAFT_CONVERSATION_ID) return;
@@ -331,5 +359,11 @@ export function useConversation(): UseConversationResult {
     sendMessage,
     deleteConversation,
     setConversationTitle,
+    renameConversationId,
+    renameTitleDraft,
+    setRenameTitleDraft,
+    requestRename,
+    confirmRename,
+    cancelRename
   };
 }

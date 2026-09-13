@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { SubmitEvent, useState } from "react";
-import { ApiError } from "../api/client";
-import { useAuth } from "../context/AuthContext";
+import { ApiError } from "@/app/api/client";
+import { useAuth } from "@/app/context/AuthContext";
 
 export function LoginModal() {
   const { login } = useAuth();
