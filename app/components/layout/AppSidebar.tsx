@@ -1,12 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { User } from "../../types/user";
 import { ConversationList } from "../chat/ConversationList";
-import { Section } from "@/app/types/app";
+import { Section, sectionRoutes } from "@/app/types/app";
 
 export type AppSidebarProps = {
     activeSection: Section
-    onSectionChange: (section: Section) => void
     user: User | null;
     onLogout: () => void;
     isDark: boolean;
@@ -15,18 +15,23 @@ export type AppSidebarProps = {
 
 export function AppSidebar({
     activeSection,
-    onSectionChange,
     user,
     onLogout,
     isDark,
     onToggleTheme,
 }: AppSidebarProps) {
+    const router = useRouter()
+
+    const navigateToSection = (section: Section) => {
+        router.push(sectionRoutes[section]);
+    }
+
     return (
         <aside className="flex min-h-0 w-52 shrink-0 flex-col border-r border-gray-200 bg-gray-50 p-3 dark:border-[#2e2e2e] dark:bg-[#161616]">
             <nav className="mb-3 space-y-1">
                 <button
                     type="button"
-                    onClick={() => onSectionChange("chat")}
+                    onClick={() => navigateToSection("chat")}
                     className={`w-full rounded-md px-3 py-2 text-left text-sm ${activeSection === "chat"
                         ? "bg-gray-200 text-gray-900 dark:bg-[#2a2a2a] dark:text-[#eeeeee]"
                         : "text-gray-600 hover:bg-gray-100 dark:text-[#aaaaaa] dark:hover:bg-[#222222]"
@@ -38,7 +43,7 @@ export function AppSidebar({
 
                 <button
                     type="button"
-                    onClick={() => onSectionChange("documents")}
+                    onClick={() => navigateToSection("documents")}
                     className={`w-full rounded-md px-3 py-2 text-left text-sm ${activeSection === "documents"
                         ? "bg-gray-200 text-gray-900 dark:bg-[#2a2a2a] dark:text-[#eeeeee]"
                         : "text-gray-600 hover:bg-gray-100 dark:text-[#aaaaaa] dark:hover:bg-[#222222]"
@@ -52,6 +57,8 @@ export function AppSidebar({
             <div className="mb-3 border-t border-gray-200 dark:border-[#2e2e2e]" />
 
             {activeSection === "chat" && (<ConversationList />)}
+
+            {activeSection === "documents" && (<div className="flex-1" />)}
 
             {user ? (
                 <div className="mb-2 rounded-md border border-gray-200 bg-white px-3 py-2 dark:border-[#2e2e2e] dark:bg-[#222222]">

@@ -34,7 +34,7 @@ export default function ChatPage() {
 
     if (isAuthLoading) {
         return (
-            <div className="flex h-screen items-center justify-center bg-white text-sm text-gray-400 dark:bg-[#1c1c1c] dark:text-[#888888]">
+            <div className="flex h-full min-w-0 flex-1 items-center justify-center bg-white text-sm text-gray-400 dark:bg-[#1c1c1c] dark:text-[#888888]">
                 Loading…
             </div>
         );
