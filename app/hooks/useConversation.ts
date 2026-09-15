@@ -16,6 +16,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { type Conversation } from "../types/conversation";
 import { SenderType } from "../types/message";
+import { useTranslations } from "next-intl";
 
 const DRAFT_CONVERSATION_ID = "__draft__";
 
@@ -50,15 +51,16 @@ function normalizeConversation(conversation: Conversation): Conversation {
   };
 }
 
-function createDraftConversation(): Conversation {
+function createDraftConversation(defaultTitle: string): Conversation {
   return {
     id: DRAFT_CONVERSATION_ID,
-    title: "New chat",
+    title: defaultTitle,
     messages: [],
   };
 }
 
 export function useConversation(): UseConversationResult {
+  const t = useTranslations('Chat')
   const { user, isAuthenticated } = useAuth();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -124,7 +126,7 @@ export function useConversation(): UseConversationResult {
         const normalized = response.map(normalizeConversation);
 
         if (normalized.length === 0) {
-          setConversations([createDraftConversation()]);
+          setConversations([createDraftConversation(t('newChat'))]);
           setActiveConversationId(DRAFT_CONVERSATION_ID);
           return;
         }
@@ -142,7 +144,7 @@ export function useConversation(): UseConversationResult {
         );
         setActiveConversationId(firstConversation.id);
       } catch (err) {
-        console.error("Failed to load conversations", err);
+        console.error(t('errors.loadConversationFail'), err);
       } finally {
         if (!cancelled) {
           setIsLoading(false);
@@ -155,14 +157,14 @@ export function useConversation(): UseConversationResult {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, t]);
 
   const isSessionActive = isAuthenticated && user !== null;
 
   const activeConversation = isSessionActive
     ? conversations.find(
-        (conversation) => conversation.id === activeConversationId,
-      )
+      (conversation) => conversation.id === activeConversationId,
+    )
     : undefined;
   const messages = activeConversation?.messages ?? [];
   const isAwaitingAssistant =
@@ -177,7 +179,7 @@ export function useConversation(): UseConversationResult {
       }
 
       return [
-        createDraftConversation(),
+        createDraftConversation(t('newChat')),
         ...prev.filter((conversation) => conversation.id !== DRAFT_CONVERSATION_ID),
       ];
     });
@@ -199,7 +201,7 @@ export function useConversation(): UseConversationResult {
     try {
       await deleteConversationApi(conversationId);
     } catch (err) {
-      console.error("Failed to delete conversation", err);
+      console.error(t('errors.deleteConversationFail'), err);
       return;
     }
 
@@ -214,7 +216,7 @@ export function useConversation(): UseConversationResult {
     );
 
     if (filtered.length === 0) {
-      setConversations([createDraftConversation()]);
+      setConversations([createDraftConversation(t('newChat'))]);
       setActiveConversationId(DRAFT_CONVERSATION_ID);
       setInput("");
       return;
@@ -237,7 +239,7 @@ export function useConversation(): UseConversationResult {
   }
 
   async function setConversationTitle(conversationId: string, title: string) {
-    const nextTitle = title.trim() || "New chat";
+    const nextTitle = title.trim() || t('newChat');
 
     if (conversationId === DRAFT_CONVERSATION_ID) {
       setConversations((prev) =>
@@ -253,7 +255,7 @@ export function useConversation(): UseConversationResult {
     try {
       await updateConversationApi(conversationId, nextTitle);
     } catch (err) {
-      console.error("Failed to rename conversation", err);
+      console.error(t('errors.renameConversationFail'), err);
       return;
     }
 
@@ -285,8 +287,8 @@ export function useConversation(): UseConversationResult {
       let userMessageId: string;
 
       if (convId === DRAFT_CONVERSATION_ID) {
-        const title = trimmedInput.slice(0, 50) || "New chat";
-        const createConversationUser = {id: user.id, email: user.email}
+        const title = trimmedInput.slice(0, 50) || t('newChat');
+        const createConversationUser = { id: user.id, email: user.email }
         const created = normalizeConversation(
           await createConversationApi(createConversationUser, title, {
             content: trimmedInput,
@@ -300,7 +302,7 @@ export function useConversation(): UseConversationResult {
           ) ?? createdMessages[createdMessages.length - 1];
 
         if (!userMessage) {
-          throw new Error("User message was not created");
+          throw new Error(t('errors.messageCreationFail'));
         }
 
         userMessageId = userMessage.id;
@@ -322,9 +324,9 @@ export function useConversation(): UseConversationResult {
           prev.map((conversation) =>
             conversation.id === convId
               ? {
-                  ...conversation,
-                  messages: [...conversation.messages, userMessage],
-                }
+                ...conversation,
+                messages: [...conversation.messages, userMessage],
+              }
               : conversation,
           ),
         );
@@ -333,7 +335,7 @@ export function useConversation(): UseConversationResult {
       await waitForAssistantReply(targetConversationId, userMessageId);
       await loadMessages(targetConversationId);
     } catch (err) {
-      console.error("Failed to send message", err);
+      console.error(t('errors.messageSendFail'), err);
     } finally {
       setAwaitingAssistantByConversationId((prev) => {
         const next = { ...prev };

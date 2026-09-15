@@ -1,6 +1,7 @@
 "use client";
 
 import { useConversationContext } from "@/app/context/ConversationContext";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -13,6 +14,8 @@ export function ConversationList() {
     deleteConversation,
     requestRename,
   } = useConversationContext();
+
+  const t = useTranslations('Chat')
 
   const [conversationMenuOpenId, setConversationMenuOpenId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{
@@ -66,11 +69,11 @@ export function ConversationList() {
           onClick={handleNewChat}
           className="mb-2 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-100 dark:border-[#2e2e2e] dark:bg-[#222222] dark:text-gray-300 dark:hover:bg-[#2a2a2a]"
         >
-          + New chat
+          {`+ ${t('newChat')}`}
         </button>
 
         <p className="mb-1 mt-2 px-1 text-xs text-gray-400 dark:text-[#666666]">
-          Today
+          {t('today')}
         </p>
 
         {conversations.map((chat) => {
@@ -102,7 +105,7 @@ export function ConversationList() {
               >
                 <button
                   type="button"
-                  aria-label="Conversation options"
+                  aria-label={t('conversationOptions')}
                   aria-expanded={conversationMenuOpenId === chat.id}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -168,7 +171,7 @@ export function ConversationList() {
                 }
               }}
             >
-              Rename
+              {t('rename')}
             </button>
 
             <button
@@ -181,7 +184,7 @@ export function ConversationList() {
                 void deleteConversation(conversationMenuOpenId);
               }}
             >
-              Delete conversation
+              {t('deleteConversation')}
             </button>
           </div>,
           document.body,

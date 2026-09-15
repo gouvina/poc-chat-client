@@ -1,0 +1,82 @@
+{
+    "Register": {
+        "title": "Crea tu cuenta",
+        "subtitle": "Regístrate para comenzar a chatear",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "createAccount": "Crear cuenta",
+        "creatingAccount": "Creando cuenta…",
+        "loginPrompt": "¿Ya tienes una cuenta?",
+        "signIn": "Iniciar sesión",
+        "errors": {
+            "emailTaken": "El correo ya esta en uso.",
+            "createAccountFail": "No se pudo crear la cuenta. Inténtalo de nuevo."
+        }
+    },
+    "Login": {
+        "title": "Inicia sesión para continuar",
+        "subtitle": "Necesitas una cuenta para usar la aplicación.",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "signIn": "Iniciar sesión",
+        "signingIn": "Ingresando...",
+        "registerPrompt": "¿No tienes una cuenta?",
+        "register": "Crea una",
+        "errors": {
+            "invalidCredentials": "Correo o contraseña incorrectos.",
+            "signInFail": "No fue posible ingresar. Por favor inténtelo de nuevo."
+        }
+    },
+    "Sidebar": {
+        "chat": "Conversaciones",
+        "documents": "Documentos",
+        "signOut": "Cerrar sesión",
+        "darkTheme": "Oscuro",
+        "lightTheme": "Claro"
+    },
+    "Chat": {
+        "newChat": "Nueva conversacion",
+        "emptyMessageHint": "Comienza una conversacion.",
+        "today": "Hoy",
+        "conversationOptions": "Opciones",
+        "rename": "Cambiar nombre",
+        "deleteConversation": "Borrar conversacion",
+        "loading": "Cargando...",
+        "loadingConversations": "Cargando conversaciones...",
+        "messagePlaceholder": "Escribe un mensaje...",
+        "messageWaiting": "Esperando respuesta…",
+        "errors": {
+            "loadConversationFail": "No se pudieron cargar las conversaciones",
+            "deleteConversationFail": "No se pudo borrar la conversacion",
+            "renameConversationFail": "No se pudo cambiar el nombre de la conversacion",
+            "messageCreationFail": "No se pudo crear el mensaje",
+            "messageSendFail": "No se pudo enviar el mensaje"
+        },
+        "Rename": {
+            "renameConversation": "Cambiar nombre",
+            "placeholderTitle": "Titulo",
+            "cancel": "Cancelar",
+            "save": "Guardar"
+        }
+    },
+    "Documents": {
+        "title": "Documentos",
+        "subtitle": "Explora y gestiona documentos.",
+        "Table": {
+            "loading": "Cargando documentos...",
+            "rowHeaders": {
+                "id": "ID",
+                "rollNumber": "Numero de Rollo",
+                "page": "Hoja",
+                "version": "Versión",
+                "score": "Calificación",
+                "rollName": "Nombre del Rollo",
+                "text": "Texto"
+            },
+            "noDocuments": "No hay documentos",
+            "of": "de",
+            "previous": "Anterior",
+            "next": "Siguiente"
+        }
+    }
+}

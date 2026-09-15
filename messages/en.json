@@ -1,0 +1,82 @@
+{
+    "Register": {
+        "title": "Create your account",
+        "subtitle": "Register to start chatting.",
+        "email": "Email",
+        "password": "Password",
+        "createAccount": "Create account",
+        "creatingAccount": "Creating account…",
+        "loginPrompt": "Already have an account?",
+        "signIn": "Sign in",
+        "errors": {
+            "emailTaken": "That email is already taken.",
+            "createAccountFail": "Unable to create account. Please try again."
+        }
+    },
+    "Login": {
+        "title": "Sign in to continue",
+        "subtitle": "You need an account to use the chat.",
+        "email": "Email",
+        "password": "Password",
+        "signIn": "Sign in",
+        "signingIn": "Signing in...",
+        "registerPrompt": "Don&apos;t have an account?",
+        "register": "Create one",
+        "errors": {
+            "invalidCredentials": "Invalid email or password.",
+            "signInFail": "Unable to sign in. Please try again."
+        }
+    },
+    "Sidebar": {
+        "chat": "Chat",
+        "documents": "Documents",
+        "signOut": "Sign out",
+        "darkTheme": "Dark",
+        "lightTheme": "Light"
+    },
+    "Chat": {
+        "newChat": "New chat",
+        "emptyMessageHint": "Start a conversation below",
+        "today": "Today",
+        "conversationOptions": "Conversation options",
+        "rename": "Rename",
+        "deleteConversation": "Delete conversation",
+        "loading": "Loading...",
+        "loadingConversations": "Loading conversations...",
+        "messagePlaceholder": "Type a message...",
+        "messageWaiting": "Waiting for reply…",
+        "errors": {
+            "loadConversationFail": "Failed to load conversations",
+            "deleteConversationFail": "Failed to delete conversation",
+            "renameConversationFail": "Failed to rename conversation",
+            "messageCreationFail": "User message was not created",
+            "messageSendFail": "Failed to send message"
+        },
+        "Rename": {
+            "renameConversation": "Rename conversation",
+            "placeholderTitle": "Title",
+            "cancel": "Cancel",
+            "save": "Save"
+        }
+    },
+    "Documents": {
+        "title": "Documents",
+        "subtitle": "Browse and manage documents.",
+        "Table": {
+            "loading": "Loading documents...",
+            "rowHeaders": {
+                "id": "ID",
+                "rollNumber": "Roll Number",
+                "page": "Page",
+                "version": "Version",
+                "score": "Score",
+                "rollName": "Roll Name",
+                "text": "Text"
+            },
+            "noDocuments": "No documents",
+            "of": "of",
+            "previous": "Previous",
+            "next": "Next"
+        }
+    }
+}

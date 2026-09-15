@@ -7,8 +7,11 @@ import { Document } from "@/app/types/document"
 import { useEffect, useState } from "react";
 import { getDocuments } from "@/app/api/services/documents";
 import { dummyDocuments } from "@/app/types/temp-lorem-ipsum"
+import { useTranslations } from "next-intl";
 
 export default function DocumentsPage() {
+    const t = useTranslations('Documents')
+
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
     const [documents, setDocuments] = useState<Document[]>([])
     const [isLoading, setIsLoading] = useState(true)
@@ -50,11 +53,11 @@ export default function DocumentsPage() {
             >
                 <div className="mb-6">
                     <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
-                        Documents
+                        {t('title')}
                     </h1>
 
                     <p className="mt-1 text-gray-500 dark:text-[#888888]">
-                        Browse and manage documents.
+                        {t("subtitle")}
                     </p>
                 </div>
 

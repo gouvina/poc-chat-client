@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { User } from "../../types/user";
 import { ConversationList } from "../chat/ConversationList";
 import { Section, sectionRoutes } from "@/app/types/app";
+import { useTranslations } from "next-intl";
 
 export type AppSidebarProps = {
     activeSection: Section
@@ -21,6 +22,7 @@ export function AppSidebar({
     onToggleTheme,
 }: AppSidebarProps) {
     const router = useRouter()
+    const t = useTranslations("Sidebar")
 
     const navigateToSection = (section: Section) => {
         router.push(sectionRoutes[section]);
@@ -38,7 +40,7 @@ export function AppSidebar({
                         }`
                     }
                 >
-                    Chat
+                    {t('chat')}
                 </button>
 
                 <button
@@ -50,7 +52,7 @@ export function AppSidebar({
                         }`
                     }
                 >
-                    Documents
+                    {t('documents')}
                 </button>
             </nav>
 
@@ -71,7 +73,7 @@ export function AppSidebar({
                         onClick={onLogout}
                         className="mt-2 text-xs text-gray-500 hover:text-gray-800 dark:text-[#888888] dark:hover:text-[#cccccc]"
                     >
-                        Sign out
+                        {t('signOut')}
                     </button>
                 </div>
             ) : null}
@@ -88,20 +90,20 @@ export function AppSidebar({
                 <div className={`relative h-5 w-9 rounded-full transition-colors duration-300 ${isDark ? "bg-[#555555]" : "bg-gray-300"}`}>
                     <div className={
                         `absolute 
-                    left-0.5 
-                    top-0.5 
-                    h-4 w-4 
-                    rounded-full 
-                    bg-white 
-                    shadow 
-                    transition-transform 
-                    duration-300 
-                    ${isDark ? "translate-x-4" : "translate-x-0"}`
+                        left-0.5 
+                        top-0.5 
+                        h-4 w-4 
+                        rounded-full 
+                        bg-white 
+                        shadow 
+                        transition-transform 
+                        duration-300 
+                        ${isDark ? "translate-x-4" : "translate-x-0"}`
                     } />
                 </div>
 
                 <span className="text-xs text-gray-500 dark:text-[#888888]">
-                    {isDark ? "Dark" : "Light"}
+                    {isDark ? t('darkTheme') : t('lightTheme')}
                 </span>
             </button>
         </aside>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Message, SenderType } from "@/app/types/message";
-
+import { useTranslations } from "next-intl";
 
 export type MessageThreadProps = {
   messages: Message[];
@@ -12,14 +12,15 @@ export type MessageThreadProps = {
 export function MessageThread({
   messages,
   isAwaitingAssistant,
-  emptyHint = "Start a conversation below",
+  emptyHint,
 }: MessageThreadProps) {
+  const t = useTranslations('Chat')
   return (
     <div className="flex-1 overflow-y-auto p-4">
       {messages.length === 0 ? (
         <div className="flex h-full items-center justify-center">
           <p className="text-base text-gray-400 dark:text-[#dddddd]">
-            {emptyHint}
+            {emptyHint ?? t('emptyMessageHint')}
           </p>
         </div>
       ) : (
