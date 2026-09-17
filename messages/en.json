@@ -85,6 +85,11 @@
             "of": "of",
             "previous": "Previous",
             "next": "Next"
+        },
+        "Details": {
+            "document": "Document",
+            "details": "Details",
+            "roll": "Roll"
         }
     }
 }

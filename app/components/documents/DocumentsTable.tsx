@@ -2,6 +2,7 @@
 
 import { Document } from "@/app/types/document"
 import { useTranslations } from "next-intl"
+import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 type DocumentsTableProps = {
@@ -14,6 +15,7 @@ export function DocumentsTable({
     isLoading = false
 }: DocumentsTableProps) {
     const t = useTranslations("Documents.Table")
+    const router = useRouter()
     const [currentPage, setCurrentPage] = useState(1)
     const [pageSize, setPageSize] = useState(1)
 
@@ -66,6 +68,10 @@ export function DocumentsTable({
         setCurrentPage(Math.min(Math.max(page, 1), totalPages))
     }
 
+    const onClickRow = (id: number) => {
+        router.push(`/documents/${id}`)
+    }
+
     return (
         <div ref={containerRef} className="flex h-full min-h-0 w-full flex-col">
             {isLoading ? (
@@ -108,7 +114,12 @@ export function DocumentsTable({
 
                                 <tbody className="divide-y divide-gray-100 dark:divide-[#2e2e2e]">
                                     {paginateDocuments.map((document, index) => (
-                                        <tr key={document.id} ref={index === 0 ? tableRowRef : undefined} className="hover:bg-gray-50 dark:hover:bg-[#222222]">
+                                        <tr
+                                            key={document.id}
+                                            ref={index === 0 ? tableRowRef : undefined}
+                                            className="hover:bg-gray-50 dark:hover:bg-[#222222]"
+                                            onClick={() => onClickRow(document.id)}
+                                        >
                                             <td className="px-4 py-3 text-gray-800 dark:text-[#dddddd]">
                                                 {document.id}
                                             </td>
