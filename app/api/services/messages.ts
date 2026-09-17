@@ -1,4 +1,4 @@
-import { Message, SenderType } from "@/app/types/message";
+import { Message, SenderType, SendMessageResponse } from "@/app/types/message";
 import { apiFetch } from "../client";
 
 const POLL_INTERVAL_MS = 1000;
@@ -13,7 +13,7 @@ export async function getMessages(conversationId: string) {
 }
 
 export async function sendMessage(conversationId: string, content: string) {
-  return apiFetch<Message>(`/conversations/${conversationId}/messages`, {
+  return apiFetch<SendMessageResponse>(`/conversations/${conversationId}/messages`, {
     method: "POST",
     body: JSON.stringify({
       content,

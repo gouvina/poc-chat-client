@@ -55,7 +55,7 @@ function createDraftConversation(defaultTitle: string): Conversation {
   return {
     id: DRAFT_CONVERSATION_ID,
     title: defaultTitle,
-    messages: [],
+    messages: []
   };
 }
 
@@ -317,14 +317,14 @@ export function useConversation(): UseConversationResult {
         targetConversationId = created.id;
         awaitingConversationId = created.id;
       } else {
-        const userMessage = await sendMessageApi(convId, trimmedInput);
+        const { conversation: updatedConversation, ...userMessage } = await sendMessageApi(convId, trimmedInput);
         userMessageId = userMessage.id;
 
         setConversations((prev) =>
           prev.map((conversation) =>
             conversation.id === convId
               ? {
-                ...conversation,
+                ...updatedConversation,
                 messages: [...conversation.messages, userMessage],
               }
               : conversation,

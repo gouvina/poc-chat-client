@@ -30,14 +30,22 @@
     "Sidebar": {
         "chat": "Conversaciones",
         "documents": "Documentos",
-        "signOut": "Cerrar sesión",
-        "darkTheme": "Oscuro",
-        "lightTheme": "Claro"
+        "Options": {
+            "title": "Opciones",
+            "signOut": "Cerrar sesión",
+            "darkTheme": "Oscuro",
+            "lightTheme": "Claro",
+            "language": "Idioma",
+            "languages": {
+                "en": "Ingles",
+                "es": "Español"
+            }
+        }
     },
     "Chat": {
         "newChat": "Nueva conversacion",
         "emptyMessageHint": "Comienza una conversacion.",
-        "today": "Hoy",
+        "recents": "Recientes",
         "conversationOptions": "Opciones",
         "rename": "Cambiar nombre",
         "deleteConversation": "Borrar conversacion",

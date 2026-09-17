@@ -61,6 +61,8 @@ export function ConversationList() {
 
   const conversationListRef = useRef<HTMLDivElement>(null);
 
+  const sortedConversations = [...conversations].sort((a, b) => new Date(b.updatedAt!).getTime() - new Date(a.updatedAt!).getTime())
+
   return (
     <>
       <div ref={conversationListRef} className="conversation-scrollbar min-h-0 min-w-0 flex-1 overflow-y-auto">
@@ -73,10 +75,10 @@ export function ConversationList() {
         </button>
 
         <p className="mb-1 mt-2 px-1 text-xs text-gray-400 dark:text-[#666666]">
-          {t('today')}
+          {t('recents')}
         </p>
 
-        {conversations.map((chat) => {
+        {sortedConversations.map((chat) => {
           const isActive = chat.id === activeConversationId;
           return (
             <div

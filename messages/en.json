@@ -30,14 +30,22 @@
     "Sidebar": {
         "chat": "Chat",
         "documents": "Documents",
-        "signOut": "Sign out",
-        "darkTheme": "Dark",
-        "lightTheme": "Light"
+        "Options": {
+            "title": "Options",
+            "signOut": "Sign out",
+            "darkTheme": "Dark",
+            "lightTheme": "Light",
+            "language": "Language",
+            "languages": {
+                "en": "English",
+                "es": "Spanish"
+            }
+        }
     },
     "Chat": {
         "newChat": "New chat",
         "emptyMessageHint": "Start a conversation below",
-        "today": "Today",
+        "recents": "Recents",
         "conversationOptions": "Conversation options",
         "rename": "Rename",
         "deleteConversation": "Delete conversation",
