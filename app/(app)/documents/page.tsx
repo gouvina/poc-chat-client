@@ -8,12 +8,14 @@ import { useEffect, useState } from "react";
 import { getDocuments } from "@/app/api/services/documents";
 import { dummyDocuments } from "@/app/types/temp-lorem-ipsum"
 import { useTranslations } from "next-intl";
+import { DocumentWorkspace } from "@/app/components/documents/DocumentWorkspace";
 
 export default function DocumentsPage() {
     const t = useTranslations('Documents')
 
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
     const [documents, setDocuments] = useState<Document[]>([])
+    const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
@@ -43,7 +45,7 @@ export default function DocumentsPage() {
     }
 
     return (
-        <div className="flex mid-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-[#1c1c1c]">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-[#1c1c1c]">
             <div
                 className={`flex min-h-0 flex-1 flex-col px-6 py-6 ${isAuthenticated
                     ? ""
@@ -51,19 +53,21 @@ export default function DocumentsPage() {
                     }`}
                 aria-hidden={!isAuthenticated}
             >
-                <div className="mb-6">
-                    <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
-                        {t('title')}
-                    </h1>
+                <DocumentWorkspace document={selectedDocument} onCloseViewer={() => setSelectedDocument(null)}>
+                    <div className="mb-6">
+                        <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
+                            {t('title')}
+                        </h1>
 
-                    <p className="mt-1 text-gray-500 dark:text-[#888888]">
-                        {t("subtitle")}
-                    </p>
-                </div>
+                        <p className="mt-1 text-gray-500 dark:text-[#888888]">
+                            {t("subtitle")}
+                        </p>
+                    </div>
 
-                <div className="min-h-0 flex-1">
-                    <DocumentsTable documents={dummyDocuments} isLoading={isLoading} />
-                </div>
+                    <div className="min-h-0 flex-1">
+                        <DocumentsTable documents={dummyDocuments} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
+                    </div>
+                </DocumentWorkspace>
             </div>
 
             {!isAuthenticated ? <LoginModal /> : null}
