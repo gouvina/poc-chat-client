@@ -72,6 +72,9 @@
         "subtitle": "Browse and manage documents.",
         "Table": {
             "loading": "Loading documents...",
+            "document": "Document",
+            "roll": "Roll",
+            "page": "Page",
             "rowHeaders": {
                 "id": "ID",
                 "rollNumber": "Roll Number",
