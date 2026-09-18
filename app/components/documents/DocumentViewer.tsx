@@ -64,7 +64,7 @@ export function DocumentViewer({
                         {displayedDocument.roll?.name && (
                             <div>
                                 <span className="text-gray-400 dark:text-[#777777]">
-                                    {t('rowHeaders.roll')}
+                                    {t('rowHeaders.rollName')}
                                 </span>
                                 <span className="ml-1.5 text-gray-600 dark:text-[#aaaaaa]">
                                     {displayedDocument.roll.name}

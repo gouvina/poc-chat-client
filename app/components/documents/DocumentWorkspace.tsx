@@ -24,7 +24,7 @@ export function DocumentWorkspace({
 
             <div className="min-w-0 overflow-hidden pl-2">
                 {document && (
-                    <DocumentViewer document={document} onClose={onCloseViewer} />
+                    <DocumentViewer document={document} onClose={onCloseViewer} showMetadata={true} />
                 )}
             </div>
         </div>

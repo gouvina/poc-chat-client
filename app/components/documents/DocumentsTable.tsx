@@ -115,7 +115,7 @@ export function DocumentsTable({
                                     <tr
                                         key={document.id}
                                         ref={index === 0 ? tableRowRef : undefined}
-                                        className={`hover:bg-gray-50 dark:hover:bg-[#222222] ${document.id === selectedDocumentId ? "bg-[#222222]" : ""}`}
+                                        className={`${document.id === selectedDocumentId ? "bg-gray-200 dark:bg-[#2a2a2a] dark:hover:bg[#2a2a2a]" : "hover:bg-gray-50 dark:hover:bg-[#222222]"}`}
                                         onClick={() => onClickDocument(document)}
                                     >
                                         <td className="px-4 py-3 text-gray-800 dark:text-[#dddddd]">
