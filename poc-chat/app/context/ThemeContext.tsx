@@ -1,7 +1,30 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 
 type Theme = "light" | "dark";
+
+const THEME_CHANGE_EVENT = "theme-change";
+
+function readThemeFromCookie(): Theme {
+  if (typeof document === "undefined") return "light";
+
+  const saved = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("theme="))
+    ?.split("=")[1];
+
+  return saved === "dark" ? "dark" : "light";
+}
+
+function subscribeToTheme(callback: () => void) {
+  window.addEventListener(THEME_CHANGE_EVENT, callback);
+  return () => window.removeEventListener(THEME_CHANGE_EVENT, callback);
+}
 
 const ThemeContext = createContext<{
   theme: Theme;
@@ -12,24 +35,21 @@ const ThemeContext = createContext<{
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const theme = useSyncExternalStore(
+    subscribeToTheme,
+    readThemeFromCookie,
+    (): Theme => "light",
+  );
 
   useEffect(() => {
-    const saved = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("theme="))
-      ?.split("=")[1] as Theme | undefined;
-
-    const initial = saved ?? "light";
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
-  }, []);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
     document.documentElement.classList.toggle("dark", next === "dark");
     document.cookie = `theme=${next}; path=/; max-age=31536000`;
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   };
 
   return (

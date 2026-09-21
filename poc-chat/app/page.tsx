@@ -9,7 +9,8 @@ export default function Home() {
   const {
     conversations,
     activeConversationId,
-    setActiveConversationId,
+    selectConversation,
+    isLoading,
     messages,
     isAwaitingAssistant,
     input,
@@ -56,17 +57,15 @@ export default function Home() {
     setRenameTitleDraft(currentTitle);
   }
 
-  function handleDeleteConversation(conversationId: string) {
-    deleteConversation(conversationId);
-    // Future: await fetch(`/api/conversations/${conversationId}`, { method: 'DELETE' })
+  async function handleDeleteConversation(conversationId: string) {
+    await deleteConversation(conversationId);
   }
 
-  function confirmRename() {
+  async function confirmRename() {
     if (!renameConversationId) return;
-    setConversationTitle(renameConversationId, renameTitleDraft);
+    await setConversationTitle(renameConversationId, renameTitleDraft);
     setRenameConversationId(null);
     setRenameTitleDraft("");
-    // Future: PATCH /api/conversations/:id { title }
   }
 
   function cancelRename() {
@@ -79,7 +78,7 @@ export default function Home() {
       <ChatSidebar
         conversations={conversations}
         activeConversationId={activeConversationId}
-        onSelectConversation={setActiveConversationId}
+        onSelectConversation={selectConversation}
         onNewChat={handleNewChat}
         onRenameRequest={requestRename}
         onDeleteConversation={handleDeleteConversation}
@@ -89,10 +88,16 @@ export default function Home() {
 
       {/* Main area */}
       <main className="flex min-w-0 flex-1 flex-col">
-        <MessageThread
-          messages={messages}
-          isAwaitingAssistant={isAwaitingAssistant}
-        />
+        {isLoading ? (
+          <div className="flex flex-1 items-center justify-center text-sm text-gray-400 dark:text-[#888888]">
+            Loading conversations…
+          </div>
+        ) : (
+          <MessageThread
+            messages={messages}
+            isAwaitingAssistant={isAwaitingAssistant}
+          />
+        )}
 
         {/* Input bar */}
         <div className="p-4 border-t border-gray-100 dark:border-[#2e2e2e]">
@@ -101,24 +106,22 @@ export default function Home() {
               ref={messageInputRef}
               className="flex-1 bg-transparent text-sm text-gray-800 dark:text-[#cccccc] outline-none placeholder-gray-400 dark:placeholder-[#555555] disabled:opacity-60 disabled:cursor-not-allowed"
               placeholder={
-                isAwaitingAssistant
-                  ? "Waiting for reply…"
-                  : "Type a message..."
+                isAwaitingAssistant ? "Waiting for reply…" : "Type a message..."
               }
               value={input}
-              disabled={isAwaitingAssistant}
+              disabled={isLoading || isAwaitingAssistant}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  sendMessage();
+                  void sendMessage();
                 }
               }}
             />
             <button
               className="text-sm px-3 py-1 rounded-lg bg-blue-500 dark:bg-[#444444] text-white dark:text-[#cccccc] hover:bg-blue-600 dark:hover:bg-[#4a4a4a] disabled:opacity-40"
-              disabled={!input.trim() || isAwaitingAssistant}
-              onClick={sendMessage}
+              disabled={isLoading || !input.trim() || isAwaitingAssistant}
+              onClick={() => void sendMessage()}
             >
               ↑
             </button>
