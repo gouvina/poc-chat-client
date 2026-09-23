@@ -6,7 +6,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Document } from "@/app/types/document"
 import { useEffect, useState } from "react";
 import { getDocuments } from "@/app/api/services/documents";
-import { dummyDocuments } from "@/app/types/temp-lorem-ipsum"
+import { mockDocuments } from "@/app/types/mock-data"
 import { useTranslations } from "next-intl";
 import { DocumentWorkspace } from "@/app/components/documents/DocumentWorkspace";
 
@@ -65,7 +65,7 @@ export default function DocumentsPage() {
                     </div>
 
                     <div className="min-h-0 flex-1">
-                        <DocumentsTable documents={dummyDocuments} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
+                        <DocumentsTable documents={mockDocuments} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
                     </div>
                 </DocumentWorkspace>
             </div>

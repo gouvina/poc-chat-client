@@ -1,9 +1,11 @@
 import { Document } from "@/app/types/document"
+import { Message, SenderType } from "./message";
+import { Query } from "./queries";
 
 export const loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras venenatis et metus in aliquet. Sed mauris purus, semper ac imperdiet eu, blandit ut eros. Etiam fringilla urna sit amet pellentesque laoreet. Donec pretium ante libero. Maecenas odio mauris, ultrices vel sodales vitae, facilisis quis orci. Proin eget volutpat nulla, quis tristique diam. Vivamus sollicitudin ornare nibh ac volutpat. Sed nec eros molestie, porta mauris ut, laoreet elit. Duis vel augue quis libero pharetra feugiat. Morbi imperdiet iaculis magna, vel faucibus quam maximus vitae. Phasellus vel turpis in eros ultricies dictum in quis odio. Integer porttitor consectetur rhoncus. Nam hendrerit lacus eros, sed ultricies diam hendrerit in.Phasellus vel eros quis dolor dignissim lobortis.Donec eget sapien sit amet arcu semper varius.In hac habitasse platea dictumst.Nunc fermentum ligula non sodales pharetra.Fusce condimentum ex placerat elit dapibus tempor at id tellus.Ut scelerisque facilisis tincidunt.Aliquam vulputate viverra ante, et pretium orci aliquam at.Sed congue tellus ut viverra elementum.Ut sodales ac magna quis malesuada.Nunc non mi vel arcu aliquam sollicitudin nec sit amet metus.Nunc elementum interdum quam, ac semper ligula hendrerit quis.Nunc cursus massa at mauris tincidunt, sit amet dignissim tellus lacinia.Proin id hendrerit est. Donec dui erat, tincidunt non vestibulum ut, semper id leo.Quisque egestas malesuada velit eget eleifend.Donec quis metus id tortor commodo venenatis a eget lectus.Sed ultricies auctor justo, id porttitor sapien.Morbi at cursus erat.Morbi convallis tempor libero, a vehicula nisl sagittis non.Nulla facilisi.Maecenas est neque, ultricies ut lectus non, venenatis feugiat dolor.Nunc vestibulum auctor rutrum.Sed ac erat ut nisi porttitor cursus et viverra quam.In tincidunt pellentesque mauris a pretium.Pellentesque euismod neque sed enim ornare condimentum.Aliquam sed sem condimentum, fermentum arcu id, molestie odio.Phasellus ipsum orci, placerat ut mi volutpat, consectetur convallis risus.Cras dapibus ex in arcu consectetur rhoncus.Ut at nulla tincidunt, ullamcorper ante ac, facilisis arcu. Suspendisse commodo condimentum lacinia.Fusce viverra lorem lacus, dignissim rutrum orci ultricies sed.Nam commodo pretium arcu eget faucibus.Aliquam maximus arcu nec lobortis fermentum.Curabitur auctor justo eu varius auctor.Duis at rhoncus erat, quis consectetur ligula.Duis ante justo, blandit ac dolor faucibus, consequat lobortis magna.Vestibulum tincidunt eleifend purus a consequat.Ut nec nulla pharetra, euismod nibh non, efficitur nulla.Sed mattis ligula venenatis arcu egestas, ut egestas ligula ultricies.Integer quis turpis in sapien posuere rhoncus.Pellentesque pellentesque, sem ut finibus tincidunt, erat dolor bibendum lacus, ac feugiat sem tellus ut diam. Proin pellentesque purus arcu.Proin ac cursus augue.Sed fermentum enim et urna cursus luctus.Proin ac ex viverra, fermentum sapien accumsan, condimentum elit.Sed at porta risus.Cras vel neque aliquam, aliquam turpis id, sollicitudin leo.Duis vitae nisi efficitur augue laoreet sodales quis ac ex.Sed imperdiet auctor augue nec dapibus.Donec luctus porta felis id euismod.Aliquam interdum, dolor eget auctor vehicula, lorem leo semper mauris, ac ornare ex metus ultrices sem.Curabitur bibendum orci commodo erat interdum, eu vulputate mi auctor.Nullam tempor, metus at porttitor faucibus, lorem massa imperdiet quam, in sollicitudin leo est nec ipsum.Duis egestas leo vitae leo dignissim, quis vulputate nibh suscipit.Proin est nisi, elementum a libero eget, commodo ornare magna.Donec libero eros, consectetur vel leo ut, pulvinar fringilla odio."
 const secondLoremIpsum = "Now that there is the Tec - 9, a crappy spray gun from South Miami.This gun is advertised as the most popular gun in American crime.Do you believe that shit ? It actually says that in the little book that comes with it: the most popular gun in American crime.Like they're actually proud of that shit. Well, the way they make shows is, they make one show.That show's called a pilot. Then they show that show to the people who make shows, and on the strength of that one show they decide if they're going to make more shows.Some pilots get picked and become television programs.Some don't, become nothing. She starred in one of the ones that became nothing. Your bones don't break, mine do. That's clear.Your cells react to bacteria and viruses differently than mine.You don't get sick, I do. That's also clear.But for some reason, you and I react the exact same way to water.We swallow it too fast, we choke.We get some in our lungs, we drown.However unreal it may seem, we are connected, you and I.We're on the same curve, just on opposite ends."
 
-export const dummyDocuments: Document[] = [
+export const mockDocuments: Document[] = [
     {
         id: 1,
         page: 1,
@@ -245,3 +247,107 @@ export const dummyDocuments: Document[] = [
         roll: { id: 10, name: "Roll 010", number_documents: 3 },
     },
 ];
+
+export const mockMessages: Message[] = [
+    {
+        id: "1",
+        sender: SenderType.USER,
+        content: "What is the difference between REST and GraphQL?",
+        createdAt: "2026-09-18T14:00:00.000Z",
+        updatedAt: "2026-09-18T14:00:00.000Z",
+    },
+    {
+        id: "2",
+        sender: SenderType.ASSISTANT,
+        content:
+            "REST and GraphQL are both approaches for building APIs, but they handle data fetching differently. REST exposes multiple endpoints that typically return predefined resource representations, while GraphQL usually exposes a single endpoint where the client specifies exactly which data it wants.",
+        createdAt: "2026-09-18T14:00:02.000Z",
+        updatedAt: "2026-09-18T14:00:02.000Z",
+    },
+    {
+        id: "3",
+        sender: SenderType.USER,
+        content:
+            "So with REST I might have separate endpoints for users and their posts?",
+        createdAt: "2026-09-18T14:01:15.000Z",
+        updatedAt: "2026-09-18T14:01:15.000Z",
+    },
+    {
+        id: "4",
+        sender: SenderType.ASSISTANT,
+        content:
+            "Exactly. For example, you could have GET /users/123 and GET /users/123/posts. With GraphQL, you could request the user and their posts in a single query, selecting only the fields you need.",
+        createdAt: "2026-09-18T14:01:17.000Z",
+        updatedAt: "2026-09-18T14:01:17.000Z",
+    },
+    {
+        id: "5",
+        sender: SenderType.USER,
+        content: "Does that mean GraphQL is always faster than REST?",
+        createdAt: "2026-09-18T14:02:30.000Z",
+        updatedAt: "2026-09-18T14:02:30.000Z",
+    },
+    {
+        id: "6",
+        sender: SenderType.ASSISTANT,
+        content:
+            "Not necessarily. GraphQL can reduce unnecessary data transfer and the number of requests in some situations, but it also introduces its own processing overhead. Performance depends on how the API, database queries, caching, and client are implemented.",
+        createdAt: "2026-09-18T14:02:32.000Z",
+        updatedAt: "2026-09-18T14:02:32.000Z",
+    },
+    {
+        id: "7",
+        sender: SenderType.USER,
+        content:
+            "What would you recommend for a relatively small application with a NestJS backend and a Next.js frontend?",
+        createdAt: "2026-09-18T14:04:00.000Z",
+        updatedAt: "2026-09-18T14:04:00.000Z",
+    },
+    {
+        id: "8",
+        sender: SenderType.ASSISTANT,
+        content:
+            "For a relatively small NestJS + Next.js application, REST is often the simpler choice. NestJS provides good support for controllers, DTOs, validation, and REST APIs out of the box. Unless you have a specific need for GraphQL's flexible querying model, REST can keep the architecture straightforward and easier to maintain.",
+        createdAt: "2026-09-18T14:04:03.000Z",
+        updatedAt: "2026-09-18T14:04:03.000Z",
+    },
+    {
+        id: "9",
+        sender: SenderType.USER,
+        content:
+            "What about if the application eventually grows and has many different types of data?",
+        createdAt: "2026-09-18T14:05:45.000Z",
+        updatedAt: "2026-09-18T14:05:45.000Z",
+    },
+    {
+        id: "10",
+        sender: SenderType.ASSISTANT,
+        content:
+            "That alone doesn't necessarily mean you need GraphQL. A well-designed REST API can scale to many resources. I'd consider GraphQL when clients frequently need different combinations of related data, when multiple clients have significantly different data requirements, or when avoiding multiple round trips becomes particularly valuable.",
+        createdAt: "2026-09-18T14:05:48.000Z",
+        updatedAt: "2026-09-18T14:05:48.000Z",
+    },
+];
+
+export const mockQuery: Query[] = [
+    {
+        id: "1",
+        question: "What is the difference between REST and GraphQL?",
+        answer: loremIpsum,
+        user: {
+            id: "1",
+            email: "test@email.com"
+        },
+        documents: [mockDocuments[0], mockDocuments[1], mockDocuments[2]],
+    },
+    {
+        id: "2",
+        question: "Retrieve all documents",
+        answer: secondLoremIpsum,
+        user: {
+            id: "1",
+            email: "test@email.com"
+        },
+        documents: mockDocuments,
+    },
+]
