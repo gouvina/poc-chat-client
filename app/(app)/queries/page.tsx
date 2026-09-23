@@ -2,7 +2,6 @@
 
 import { QueryInput } from "@/app/components/query/QueryInput";
 import { Query } from "@/app/types/queries";
-import { useState } from "react";
 
 export default function QueryPage() {
 

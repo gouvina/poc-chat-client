@@ -7,4 +7,6 @@ export type Query = {
     answer: string
     user: User
     documents: Document[]
+    createdAt?: string
+    updatedAt?: string
 }

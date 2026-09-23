@@ -96,6 +96,10 @@
         "loading": "Loading...",
         "questionInput": "Ask a question...",
         "keywordsPlaceholder": "Add keyword...",
+        "quertNotFound": "Query not found.",
+        "document": "Document",
+        "roll": "Roll",
+        "page": "Page",
         "aria-label": {
             "sendQuestion": "Send question",
             "addKeyword": "Add keyword",

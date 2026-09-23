@@ -96,6 +96,10 @@
         "loading": "Cargando...",
         "questionInput": "Pregunta algo...",
         "keywordsPlaceholder": "Agrega palabra clave...",
+        "quertNotFound": "No se encontro la consulta.",
+        "document": "Documento",
+        "roll": "Rollo",
+        "page": "Hoja",
         "aria-label": {
             "sendQuestion": "Enviar pregunta",
             "addKeyword": "Añadir palabra clave",
