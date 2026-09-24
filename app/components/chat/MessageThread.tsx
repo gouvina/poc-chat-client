@@ -1,6 +1,7 @@
 "use client";
 
-import { Message, SenderType } from "../types/message";
+import { Message, SenderType } from "@/app/types/message";
+
 
 export type MessageThreadProps = {
   messages: Message[];

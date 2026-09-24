@@ -25,3 +25,37 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.conversation-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.conversation-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.conversation-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.conversation-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+}
+
+.conversation-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.dark .conversation-scrollbar {
+  scrollbar-color: #444444 transparent;
+}
+
+.dark .conversation-scrollbar::-webkit-scrollbar-thumb {
+  background: #444444;
+}
+
+.dark .conversation-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
