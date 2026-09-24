@@ -5,12 +5,14 @@ type DocumentWorkspaceProps = {
     document: Document | null
     onCloseViewer: () => void
     children: React.ReactNode
+    showMetadata?: boolean
 }
 
 export function DocumentWorkspace({
     document,
     onCloseViewer,
-    children
+    children,
+    showMetadata = true,
 }: DocumentWorkspaceProps) {
     return (
         <div className={`
@@ -24,7 +26,7 @@ export function DocumentWorkspace({
 
             <div className="min-w-0 overflow-hidden pl-2">
                 {document && (
-                    <DocumentViewer document={document} onClose={onCloseViewer} showMetadata={true} />
+                    <DocumentViewer document={document} onClose={onCloseViewer} showMetadata={showMetadata} />
                 )}
             </div>
         </div>

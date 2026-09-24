@@ -30,6 +30,7 @@
     "Sidebar": {
         "chat": "Conversaciones",
         "documents": "Documentos",
+        "queries": "Consultas",
         "Options": {
             "title": "Opciones",
             "signOut": "Cerrar sesión",
@@ -88,6 +89,22 @@
             "of": "de",
             "previous": "Anterior",
             "next": "Siguiente"
+        }
+    },
+    "Query": {
+        "newQuery": "Nueva Consulta",
+        "loading": "Cargando...",
+        "questionInput": "Pregunta algo...",
+        "keywordsPlaceholder": "Agrega palabra clave...",
+        "queryNotFound": "No se encontro la consulta.",
+        "document": "Documento",
+        "documents": "Documentos",
+        "roll": "Rollo",
+        "page": "Hoja",
+        "aria-label": {
+            "sendQuestion": "Enviar pregunta",
+            "addKeyword": "Añadir palabra clave",
+            "remove": "Remover"
         }
     }
 }
