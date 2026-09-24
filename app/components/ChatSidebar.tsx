@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Conversation } from "../types/conversation";
+import type { User } from "../types/user";
 
 export type ChatSidebarProps = {
   conversations: Conversation[];
@@ -10,6 +11,8 @@ export type ChatSidebarProps = {
   onNewChat: () => void;
   onRenameRequest: (conversationId: string, currentTitle: string) => void;
   onDeleteConversation: (conversationId: string) => void;
+  user: User | null;
+  onLogout: () => void;
   isDark: boolean;
   onToggleTheme: () => void;
 };
@@ -21,6 +24,8 @@ export function ChatSidebar({
   onNewChat,
   onRenameRequest,
   onDeleteConversation,
+  user,
+  onLogout,
   isDark,
   onToggleTheme,
 }: ChatSidebarProps) {
@@ -146,6 +151,24 @@ export function ChatSidebar({
       })}
 
       <div className="flex-1" />
+
+      {user ? (
+        <div className="mb-2 rounded-md border border-gray-200 bg-white px-3 py-2 dark:border-[#2e2e2e] dark:bg-[#222222]">
+          <p className="truncate text-sm font-medium text-gray-800 dark:text-[#eeeeee]">
+            {user.username}
+          </p>
+          <p className="truncate text-xs text-gray-500 dark:text-[#777777]">
+            {user.email}
+          </p>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="mt-2 text-xs text-gray-500 hover:text-gray-800 dark:text-[#888888] dark:hover:text-[#cccccc]"
+          >
+            Sign out
+          </button>
+        </div>
+      ) : null}
 
       <button
         type="button"

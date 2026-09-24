@@ -1,11 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { ChatSidebar } from "./components/ChatSidebar";
+import { LoginModal } from "./components/LoginModal";
 import { MessageThread } from "./components/MessageThread";
+import { useAuth } from "./context/AuthContext";
 import { useTheme } from "./context/ThemeContext";
 import { useConversation } from "./hooks/useConversation";
 
 export default function Home() {
+  const { user, isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
   const {
     conversations,
     activeConversationId,
@@ -73,61 +76,78 @@ export default function Home() {
     setRenameTitleDraft("");
   }
 
+  if (isAuthLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white text-sm text-gray-400 dark:bg-[#1c1c1c] dark:text-[#888888]">
+        Loading…
+      </div>
+    );
+  }
+
+  const isChatDisabled = !isAuthenticated;
+
   return (
-    <div className="flex h-screen bg-white dark:bg-[#1c1c1c]">
-      <ChatSidebar
-        conversations={conversations}
-        activeConversationId={activeConversationId}
-        onSelectConversation={selectConversation}
-        onNewChat={handleNewChat}
-        onRenameRequest={requestRename}
-        onDeleteConversation={handleDeleteConversation}
-        isDark={isDark}
-        onToggleTheme={toggleTheme}
-      />
+    <div className="relative flex h-screen bg-white dark:bg-[#1c1c1c]">
+      <div
+        className={`flex min-h-0 flex-1 ${isChatDisabled ? "pointer-events-none select-none blur-sm" : ""}`}
+        aria-hidden={isChatDisabled}
+      >
+        <ChatSidebar
+          conversations={conversations}
+          activeConversationId={activeConversationId}
+          onSelectConversation={selectConversation}
+          onNewChat={handleNewChat}
+          onRenameRequest={requestRename}
+          onDeleteConversation={handleDeleteConversation}
+          user={user}
+          onLogout={logout}
+          isDark={isDark}
+          onToggleTheme={toggleTheme}
+        />
 
-      {/* Main area */}
-      <main className="flex min-w-0 flex-1 flex-col">
-        {isLoading ? (
-          <div className="flex flex-1 items-center justify-center text-sm text-gray-400 dark:text-[#888888]">
-            Loading conversations…
-          </div>
-        ) : (
-          <MessageThread
-            messages={messages}
-            isAwaitingAssistant={isAwaitingAssistant}
-          />
-        )}
-
-        {/* Input bar */}
-        <div className="p-4 border-t border-gray-100 dark:border-[#2e2e2e]">
-          <div className="flex items-center gap-2 bg-gray-50 dark:bg-[#161616] border border-gray-200 dark:border-[#2e2e2e] rounded-xl px-4 py-2">
-            <input
-              ref={messageInputRef}
-              className="flex-1 bg-transparent text-sm text-gray-800 dark:text-[#cccccc] outline-none placeholder-gray-400 dark:placeholder-[#555555] disabled:opacity-60 disabled:cursor-not-allowed"
-              placeholder={
-                isAwaitingAssistant ? "Waiting for reply…" : "Type a message..."
-              }
-              value={input}
-              disabled={isLoading || isAwaitingAssistant}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  void sendMessage();
-                }
-              }}
+        <main className="flex min-w-0 flex-1 flex-col">
+          {isLoading ? (
+            <div className="flex flex-1 items-center justify-center text-sm text-gray-400 dark:text-[#888888]">
+              Loading conversations…
+            </div>
+          ) : (
+            <MessageThread
+              messages={messages}
+              isAwaitingAssistant={false}//{isAwaitingAssistant}
             />
-            <button
-              className="text-sm px-3 py-1 rounded-lg bg-blue-500 dark:bg-[#444444] text-white dark:text-[#cccccc] hover:bg-blue-600 dark:hover:bg-[#4a4a4a] disabled:opacity-40"
-              disabled={isLoading || !input.trim() || isAwaitingAssistant}
-              onClick={() => void sendMessage()}
-            >
-              ↑
-            </button>
+          )}
+
+          <div className="border-t border-gray-100 p-4 dark:border-[#2e2e2e]">
+            <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 dark:border-[#2e2e2e] dark:bg-[#161616]">
+              <input
+                ref={messageInputRef}
+                className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder-gray-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#cccccc] dark:placeholder-[#555555]"
+                placeholder={
+                  isAwaitingAssistant ? "Waiting for reply…" : "Type a message..."
+                }
+                value={input}
+                disabled={isLoading /*|| isAwaitingAssistant*/ || isChatDisabled}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void sendMessage();
+                  }
+                }}
+              />
+              <button
+                className="rounded-lg bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:opacity-40 dark:bg-[#444444] dark:text-[#cccccc] dark:hover:bg-[#4a4a4a]"
+                disabled={
+                  isLoading || !input.trim() || /*isAwaitingAssistant ||*/ isChatDisabled
+                }
+                onClick={() => void sendMessage()}
+              >
+                ↑
+              </button>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       {renameConversationId ? (
         <div
@@ -183,6 +203,8 @@ export default function Home() {
           </div>
         </div>
       ) : null}
+
+      {isChatDisabled ? <LoginModal /> : null}
     </div>
   );
 }

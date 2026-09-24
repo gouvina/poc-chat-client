@@ -13,7 +13,7 @@ import {
   sendMessage as sendMessageApi,
   waitForAssistantReply,
 } from "../api/services/messages";
-import { getOrCreateUser } from "../api/services/users";
+import { useAuth } from "../context/AuthContext";
 import { type Conversation } from "../types/conversation";
 import { SenderType } from "../types/message";
 
@@ -44,7 +44,16 @@ function normalizeConversation(conversation: Conversation): Conversation {
   };
 }
 
+function createDraftConversation(): Conversation {
+  return {
+    id: DRAFT_CONVERSATION_ID,
+    title: "New chat",
+    messages: [],
+  };
+}
+
 export function useConversation(): UseConversationResult {
+  const { user, isAuthenticated } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState(
     DRAFT_CONVERSATION_ID,
@@ -70,24 +79,24 @@ export function useConversation(): UseConversationResult {
   }, []);
 
   useEffect(() => {
+    if (!isAuthenticated || !user) {
+      return;
+    }
+
+    const activeUser = user;
     let cancelled = false;
 
     async function initialize() {
+      setIsLoading(true);
+
       try {
-        await getOrCreateUser();
-        const response = await getConversations();
+        const response = await getConversations(activeUser.id);
         if (cancelled) return;
 
         const normalized = response.map(normalizeConversation);
 
         if (normalized.length === 0) {
-          setConversations([
-            {
-              id: DRAFT_CONVERSATION_ID,
-              title: "New chat",
-              messages: [],
-            },
-          ]);
+          setConversations([createDraftConversation()]);
           setActiveConversationId(DRAFT_CONVERSATION_ID);
           return;
         }
@@ -118,13 +127,18 @@ export function useConversation(): UseConversationResult {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isAuthenticated, user]);
 
-  const activeConversation = conversations.find(
-    (conversation) => conversation.id === activeConversationId,
-  );
+  const isSessionActive = isAuthenticated && user !== null;
+
+  const activeConversation = isSessionActive
+    ? conversations.find(
+        (conversation) => conversation.id === activeConversationId,
+      )
+    : undefined;
   const messages = activeConversation?.messages ?? [];
   const isAwaitingAssistant =
+    isSessionActive &&
     Boolean(activeConversationId) &&
     Boolean(awaitingAssistantByConversationId[activeConversationId]);
 
@@ -135,11 +149,7 @@ export function useConversation(): UseConversationResult {
       }
 
       return [
-        {
-          id: DRAFT_CONVERSATION_ID,
-          title: "New chat",
-          messages: [],
-        },
+        createDraftConversation(),
         ...prev.filter((conversation) => conversation.id !== DRAFT_CONVERSATION_ID),
       ];
     });
@@ -176,13 +186,7 @@ export function useConversation(): UseConversationResult {
     );
 
     if (filtered.length === 0) {
-      setConversations([
-        {
-          id: DRAFT_CONVERSATION_ID,
-          title: "New chat",
-          messages: [],
-        },
-      ]);
+      setConversations([createDraftConversation()]);
       setActiveConversationId(DRAFT_CONVERSATION_ID);
       setInput("");
       return;
@@ -236,7 +240,9 @@ export function useConversation(): UseConversationResult {
 
   async function sendMessage() {
     const trimmedInput = input.trim();
-    if (!trimmedInput || isAwaitingAssistant || !activeConversationId) return;
+    if (!trimmedInput || /*isAwaitingAssistant ||*/ !activeConversationId || !user) {
+      return;
+    }
 
     const convId = activeConversationId;
     let awaitingConversationId = convId;
@@ -251,10 +257,10 @@ export function useConversation(): UseConversationResult {
       let userMessageId: string;
 
       if (convId === DRAFT_CONVERSATION_ID) {
-        const user = await getOrCreateUser();
         const title = trimmedInput.slice(0, 50) || "New chat";
+        const createConversationUser = {id: user.id, email: user.email}
         const created = normalizeConversation(
-          await createConversationApi(user, title, {
+          await createConversationApi(createConversationUser, title, {
             content: trimmedInput,
             sender: SenderType.USER,
           }),
@@ -311,13 +317,15 @@ export function useConversation(): UseConversationResult {
   }
 
   return {
-    conversations,
-    activeConversationId,
+    conversations: isSessionActive ? conversations : [],
+    activeConversationId: isSessionActive
+      ? activeConversationId
+      : DRAFT_CONVERSATION_ID,
     selectConversation,
     messages,
     isAwaitingAssistant,
-    isLoading,
-    input,
+    isLoading: isSessionActive ? isLoading : false,
+    input: isSessionActive ? input : "",
     setInput,
     handleNewChat,
     sendMessage,
