@@ -31,7 +31,7 @@ export function QueryList() {
         }
 
         fetchQueries()
-    }, [user, isAuthenticated])
+    }, [user, isAuthenticated, pathname])
 
     const handleNewQuery = () => {
         router.push("/queries")
