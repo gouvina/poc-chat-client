@@ -1,12 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { User } from "../../types/user";
 import { ConversationList } from "../chat/ConversationList";
 import { Section, sectionRoutes } from "@/app/types/app";
 import { useTranslations } from "next-intl";
 import { OptionsMenu } from "./OptionsMenu";
 import { QueryList } from "../query/QueryList";
+import { useEffect, useRef } from "react";
 
 export type AppSidebarProps = {
     activeSection: Section
@@ -23,11 +24,30 @@ export function AppSidebar({
     isDark,
     onToggleTheme,
 }: AppSidebarProps) {
-    const router = useRouter()
     const t = useTranslations("Sidebar")
+    const router = useRouter()
+    const pathname = usePathname()
+
+    const lastSectionRoutes = useRef<Partial<Record<Section, string>>>({})
+
+    useEffect(() => {
+        if (pathname.startsWith("/queries/")) {
+            lastSectionRoutes.current.queries = pathname
+        }
+
+        if (pathname.startsWith("/chat/")) {
+            lastSectionRoutes.current.chat = pathname
+        }
+
+        if (pathname.startsWith("/documents/")) {
+            lastSectionRoutes.current.documents = pathname
+        }
+    }, [pathname])
 
     const navigateToSection = (section: Section) => {
-        router.push(sectionRoutes[section]);
+        const lastRoute = lastSectionRoutes.current[section]
+
+        router.push(lastRoute ?? sectionRoutes[section]);
     }
 
     return (

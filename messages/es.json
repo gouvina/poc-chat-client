@@ -96,8 +96,9 @@
         "loading": "Cargando...",
         "questionInput": "Pregunta algo...",
         "keywordsPlaceholder": "Agrega palabra clave...",
-        "quertNotFound": "No se encontro la consulta.",
+        "queryNotFound": "No se encontro la consulta.",
         "document": "Documento",
+        "documents": "Documentos",
         "roll": "Rollo",
         "page": "Hoja",
         "aria-label": {

@@ -53,7 +53,7 @@ export default function DocumentsPage() {
                     }`}
                 aria-hidden={!isAuthenticated}
             >
-                <DocumentWorkspace document={selectedDocument} onCloseViewer={() => setSelectedDocument(null)}>
+                <DocumentWorkspace document={selectedDocument} onCloseViewer={() => setSelectedDocument(null)} showMetadata={false}>
                     <div className="mb-6">
                         <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
                             {t('title')}

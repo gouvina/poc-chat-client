@@ -333,6 +333,7 @@ export const mockQuery: Query[] = [
     {
         id: "1",
         question: "What is the difference between REST and GraphQL?",
+        keywords: ["rest", "graphql", "software"],
         answer: loremIpsum,
         user: {
             id: "1",
@@ -343,6 +344,7 @@ export const mockQuery: Query[] = [
     {
         id: "2",
         question: "Retrieve all documents",
+        keywords: ["documents", "all"],
         answer: secondLoremIpsum,
         user: {
             id: "1",

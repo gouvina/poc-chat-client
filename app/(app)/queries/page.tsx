@@ -1,12 +1,28 @@
 "use client"
 
+import { createQuery } from "@/app/api/services/queries";
 import { QueryInput } from "@/app/components/query/QueryInput";
-import { Query } from "@/app/types/queries";
+import { useAuth } from "@/app/context/AuthContext";
+import { sectionRoutes } from "@/app/types/app";
+import { useRouter } from "next/navigation";
 
 export default function QueryPage() {
+    const { user } = useAuth()
+    const router = useRouter()
 
-    const onSubmit = (query: Query) => {
-        console.log('submit')
+    const onSubmit = async (question: string, keywords: string[]) => {
+        if (!user) return
+
+        const createQueryUser = { id: user.id, email: user.email }
+
+        try {
+            const data = await createQuery(createQueryUser, question, keywords)
+            sessionStorage.setItem("new-query", JSON.stringify({ id: data.id, question, keywords }))
+
+            router.push(`${sectionRoutes.queries}/${data.id}`)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (

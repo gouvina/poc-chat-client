@@ -12,11 +12,12 @@ export async function getQuery(id: string) {
 
 export async function createQuery(
     user: User,
-    question: string
+    question: string,
+    keywords: string[]
 ) {
     return apiFetch<Query>("/queries", {
         method: "POST",
-        body: JSON.stringify({ user, question })
+        body: JSON.stringify({ user, question, keywords })
     })
 }
 
