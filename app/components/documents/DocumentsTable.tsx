@@ -2,15 +2,20 @@
 
 import { Document } from "@/app/types/document"
 import { useTranslations } from "next-intl"
+import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 type DocumentsTableProps = {
     documents: Document[]
+    selectedDocumentId?: number | null
+    onClickDocument?: (document: Document) => void
     isLoading?: boolean
 }
 
 export function DocumentsTable({
     documents,
+    selectedDocumentId = null,
+    onClickDocument = (_) => { return },
     isLoading = false
 }: DocumentsTableProps) {
     const t = useTranslations("Documents.Table")
@@ -48,7 +53,7 @@ export function DocumentsTable({
         observer.observe(container)
 
         return () => observer.disconnect()
-    }, [documents])
+    }, [documents, isLoading])
 
     useEffect(() => {
         setCurrentPage(1)
@@ -77,66 +82,69 @@ export function DocumentsTable({
                 </div>
             ) : (
                 <>
-                    <div className="w-full">
-                        <div className="w-full overflow-hidden rounded-lg border border-gray-200 dark:border-[#2e2e2e]">
-                            <table className="w-full text-left text-sm">
-                                <thead ref={tableHeaderRef} className="bg-gray-50 dark:bg-[#2e2e2e]">
-                                    <tr>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            {t('rowHeaders.id')}
-                                        </th >
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            {t('rowHeaders.rollNumber')}
-                                        </th>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            {t('rowHeaders.page')}
-                                        </th>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            {t('rowHeaders.version')}
-                                        </th>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            {t('rowHeaders.score')}
-                                        </th>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            {t('rowHeaders.rollName')}
-                                        </th>
-                                        <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            {t('rowHeaders.text')}
-                                        </th>
-                                    </tr >
-                                </thead >
+                    <div className="w-full overflow-x-auto small-scrollbar rounded-lg border border-gray-200 dark:border-[#2e2e2e]">
+                        <table className="w-full whitespace-nowrap text-left text-sm">
+                            <thead ref={tableHeaderRef} className="bg-gray-50 dark:bg-[#2e2e2e]">
+                                <tr>
+                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        {t('rowHeaders.id')}
+                                    </th >
+                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        {t('rowHeaders.rollNumber')}
+                                    </th>
+                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        {t('rowHeaders.page')}
+                                    </th>
+                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        {t('rowHeaders.version')}
+                                    </th>
+                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        {t('rowHeaders.score')}
+                                    </th>
+                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        {t('rowHeaders.rollName')}
+                                    </th>
+                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        {t('rowHeaders.text')}
+                                    </th>
+                                </tr >
+                            </thead >
 
-                                <tbody className="divide-y divide-gray-100 dark:divide-[#2e2e2e]">
-                                    {paginateDocuments.map((document, index) => (
-                                        <tr key={document.id} ref={index === 0 ? tableRowRef : undefined} className="hover:bg-gray-50 dark:hover:bg-[#222222]">
-                                            <td className="px-4 py-3 text-gray-800 dark:text-[#dddddd]">
-                                                {document.id}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
-                                                {document.roll.id}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
-                                                {document.page ?? "—"}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
-                                                {document.version ?? "—"}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
-                                                {document.score ?? "—"}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
-                                                {document.roll?.name ?? "—"}
-                                            </td>
-                                            <td className="max-w-md px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
-                                                <p className="truncate">
-                                                    {document.text ?? "—"}
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table >
-                        </div>
+                            <tbody className="divide-y divide-gray-100 dark:divide-[#2e2e2e]">
+                                {paginateDocuments.map((document, index) => (
+                                    <tr
+                                        key={document.id}
+                                        ref={index === 0 ? tableRowRef : undefined}
+                                        className={`${document.id === selectedDocumentId ? "bg-gray-200 dark:bg-[#2a2a2a] dark:hover:bg[#2a2a2a]" : "hover:bg-gray-50 dark:hover:bg-[#222222]"}`}
+                                        onClick={() => onClickDocument(document)}
+                                    >
+                                        <td className="px-4 py-3 text-gray-800 dark:text-[#dddddd]">
+                                            {document.id}
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
+                                            {document.roll.id}
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
+                                            {document.page ?? "—"}
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
+                                            {document.version ?? "—"}
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
+                                            {document.score ?? "—"}
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
+                                            {document.roll?.name ?? "—"}
+                                        </td>
+                                        <td className="max-w-md px-4 py-3 text-gray-600 dark:text-[#aaaaaa]">
+                                            <p className="truncate">
+                                                {document.text ?? "—"}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table >
                     </div>
 
                     <div ref={paginationRef} className="mt-3 flex shrink-0 items-center justify-between">

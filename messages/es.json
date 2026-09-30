@@ -72,6 +72,9 @@
         "subtitle": "Explora y gestiona documentos.",
         "Table": {
             "loading": "Cargando documentos...",
+            "document": "Documento",
+            "roll": "Rollo",
+            "page": "Hoja",
             "rowHeaders": {
                 "id": "ID",
                 "rollNumber": "Numero de Rollo",

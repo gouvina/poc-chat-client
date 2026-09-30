@@ -65,7 +65,7 @@ export function ConversationList() {
 
   return (
     <>
-      <div ref={conversationListRef} className="conversation-scrollbar min-h-0 min-w-0 flex-1 overflow-y-auto">
+      <div ref={conversationListRef} className="small-scrollbar min-h-0 min-w-0 flex-1 overflow-y-auto">
         <button
           type="button"
           onClick={handleNewChat}
