@@ -1,7 +1,7 @@
-export type Section = "chat" | "documents" | "query";
+export type Section = "chat" | "documents" | "queries";
 
 export const sectionRoutes: Record<Section, string> = {
     chat: "/chat",
     documents: "/documents",
-    query: "/query",
+    queries: "/queries",
 };

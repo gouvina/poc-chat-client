@@ -59,3 +59,21 @@ body {
 .dark .small-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555555;
 }
+
+@keyframes loading-dot {
+
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.loading-dot {
+  animation: loading-dot 900ms ease-in-out infinite;
+}

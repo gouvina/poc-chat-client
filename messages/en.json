@@ -30,6 +30,7 @@
     "Sidebar": {
         "chat": "Chat",
         "documents": "Documents",
+        "queries": "Queries",
         "Options": {
             "title": "Options",
             "signOut": "Sign out",
@@ -88,6 +89,22 @@
             "of": "of",
             "previous": "Previous",
             "next": "Next"
+        }
+    },
+    "Query": {
+        "newQuery": "New Query",
+        "loading": "Loading...",
+        "questionInput": "Ask a question...",
+        "keywordsPlaceholder": "Add keyword...",
+        "queryNotFound": "Query not found.",
+        "document": "Document",
+        "documents": "Documents",
+        "roll": "Roll",
+        "page": "Page",
+        "aria-label": {
+            "sendQuestion": "Send question",
+            "addKeyword": "Add keyword",
+            "remove": "Remove"
         }
     }
 }

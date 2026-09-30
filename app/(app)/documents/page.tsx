@@ -6,7 +6,6 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Document } from "@/app/types/document"
 import { useEffect, useState } from "react";
 import { getDocuments } from "@/app/api/services/documents";
-import { dummyDocuments } from "@/app/types/temp-lorem-ipsum"
 import { useTranslations } from "next-intl";
 import { DocumentWorkspace } from "@/app/components/documents/DocumentWorkspace";
 
@@ -53,7 +52,7 @@ export default function DocumentsPage() {
                     }`}
                 aria-hidden={!isAuthenticated}
             >
-                <DocumentWorkspace document={selectedDocument} onCloseViewer={() => setSelectedDocument(null)}>
+                <DocumentWorkspace document={selectedDocument} onCloseViewer={() => setSelectedDocument(null)} showMetadata={false}>
                     <div className="mb-6">
                         <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
                             {t('title')}
@@ -65,7 +64,7 @@ export default function DocumentsPage() {
                     </div>
 
                     <div className="min-h-0 flex-1">
-                        <DocumentsTable documents={dummyDocuments} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
+                        <DocumentsTable documents={documents} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
                     </div>
                 </DocumentWorkspace>
             </div>

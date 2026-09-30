@@ -25,7 +25,7 @@ export default function AppLayout({
 
     return (
         <ConversationProvider>
-            <div className="flex h-screen bg-white dark:bg-[#1c1c1c]">
+            <div className="flex h-screen min-w-0 overflow-hidden bg-white dark:bg-[#1c1c1c]">
                 <AppSidebar
                     user={user}
                     onLogout={logout}
