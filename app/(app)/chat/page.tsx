@@ -5,8 +5,10 @@ import { useAuth } from "../../context/AuthContext";
 import { useConversationContext } from "../../context/ConversationContext";
 import { MessageThread } from "../../components/chat/MessageThread";
 import { LoginModal } from "../../components/auth/LoginModal";
+import { useTranslations } from "next-intl";
 
 export default function ChatPage() {
+    const t = useTranslations('Chat')
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
     const {
@@ -35,7 +37,7 @@ export default function ChatPage() {
     if (isAuthLoading) {
         return (
             <div className="flex h-full min-w-0 flex-1 items-center justify-center bg-white text-sm text-gray-400 dark:bg-[#1c1c1c] dark:text-[#888888]">
-                Loading…
+                {t('loading')}
             </div>
         );
     }
@@ -54,7 +56,7 @@ export default function ChatPage() {
                 <main className="flex min-w-0 flex-1 flex-col">
                     {isLoading ? (
                         <div className="flex flex-1 items-center justify-center text-sm text-gray-400 dark:text-[#888888]">
-                            Loading conversations…
+                            {t('loadingConversations')}
                         </div>
                     ) : (
                         <MessageThread
@@ -70,8 +72,8 @@ export default function ChatPage() {
                                 className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder-gray-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#cccccc] dark:placeholder-[#555555]"
                                 placeholder={
                                     isAwaitingAssistant
-                                        ? "Waiting for reply…"
-                                        : "Type a message..."
+                                        ? t('messageWaiting')
+                                        : t('messagePlaceholder')
                                 }
                                 value={input}
                                 disabled={isLoading || isChatDisabled}

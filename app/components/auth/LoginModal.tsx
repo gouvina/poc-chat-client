@@ -4,9 +4,11 @@ import Link from "next/link";
 import { SubmitEvent, useState } from "react";
 import { ApiError } from "@/app/api/client";
 import { useAuth } from "@/app/context/AuthContext";
+import { useTranslations } from "next-intl";
 
 export function LoginModal() {
   const { login } = useAuth();
+  const t = useTranslations('Login')
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -21,11 +23,11 @@ export function LoginModal() {
       await login({ email, password });
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        setError("Invalid email or password.");
+        setError(t('errors.invalidCredentials'));
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Unable to sign in. Please try again.");
+        setError(t('errors.signInFail'));
       }
     } finally {
       setIsSubmitting(false);
@@ -47,10 +49,10 @@ export function LoginModal() {
           id="login-title"
           className="text-lg font-medium text-gray-900 dark:text-[#eeeeee]"
         >
-          Sign in to continue
+          {t('title')}
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-[#888888]">
-          You need an account to use the chat.
+          {t('subtitle')}
         </p>
 
         <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
@@ -59,7 +61,7 @@ export function LoginModal() {
               htmlFor="login-email"
               className="mb-1 block text-xs font-medium text-gray-600 dark:text-[#aaaaaa]"
             >
-              Email
+              {t('email')}
             </label>
             <input
               id="login-email"
@@ -77,7 +79,7 @@ export function LoginModal() {
               htmlFor="login-password"
               className="mb-1 block text-xs font-medium text-gray-600 dark:text-[#aaaaaa]"
             >
-              Password
+              {t('password')}
             </label>
             <input
               id="login-password"
@@ -101,17 +103,17 @@ export function LoginModal() {
             disabled={isSubmitting}
             className="w-full rounded-md bg-blue-500 px-3 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-60 dark:bg-[#444444] dark:hover:bg-[#4a4a4a]"
           >
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? t('signingIn') : t('signIn')}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-gray-500 dark:text-[#888888]">
-          Don&apos;t have an account?{" "}
+          {t('registerPrompt')}{" "}
           <Link
             href="/register"
             className="font-medium text-blue-600 hover:underline dark:text-[#cccccc]"
           >
-            Create one
+            {t('register')}
           </Link>
         </p>
       </div>

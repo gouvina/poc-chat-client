@@ -1,6 +1,7 @@
 "use client"
 
 import { Document } from "@/app/types/document"
+import { useTranslations } from "next-intl"
 import { useEffect, useRef, useState } from "react"
 
 type DocumentsTableProps = {
@@ -12,6 +13,7 @@ export function DocumentsTable({
     documents,
     isLoading = false
 }: DocumentsTableProps) {
+    const t = useTranslations("Documents.Table")
     const [currentPage, setCurrentPage] = useState(1)
     const [pageSize, setPageSize] = useState(1)
 
@@ -70,7 +72,7 @@ export function DocumentsTable({
                 <div className="flex min-h-40 flex-1 items-center justify-center rounded-lg border border-gray-200 dark:border-[#2e2e2e]">
                     <div className="flex item-center gap-3 text-sm text-gray-400 dark:text-[#888888]">
                         <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 dark:border-[#444444] dark:border-t-[#aaaaaa]" />
-                        <span>Loading documents...</span>
+                        <span>{t('loading')}</span>
                     </div>
                 </div>
             ) : (
@@ -81,25 +83,25 @@ export function DocumentsTable({
                                 <thead ref={tableHeaderRef} className="bg-gray-50 dark:bg-[#2e2e2e]">
                                     <tr>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            ID
+                                            {t('rowHeaders.id')}
                                         </th >
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            Roll Number
+                                            {t('rowHeaders.rollNumber')}
                                         </th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            Page
+                                            {t('rowHeaders.page')}
                                         </th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            Version
+                                            {t('rowHeaders.version')}
                                         </th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            Score
+                                            {t('rowHeaders.score')}
                                         </th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            Roll Name
+                                            {t('rowHeaders.rollName')}
                                         </th>
                                         <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                            Text
+                                            {t('rowHeaders.text')}
                                         </th>
                                     </tr >
                                 </thead >
@@ -140,11 +142,11 @@ export function DocumentsTable({
                     <div ref={paginationRef} className="mt-3 flex shrink-0 items-center justify-between">
                         <p className="text-xs text-gray-400 dark:text-[#777777]">
                             {documents.length === 0
-                                ? "No documents"
+                                ? t('noDocuments')
                                 : `${startIndex + 1}-${Math.min(
                                     startIndex + pageSize,
                                     documents.length,
-                                )} of ${documents.length}`}
+                                )} ${t('of')} ${documents.length}`}
                         </p>
 
                         <div className="flex items-center gap-1">
@@ -154,7 +156,7 @@ export function DocumentsTable({
                                 disabled={currentPage === 1}
                                 className="rounded-md px-2.5 py-1.5 text-xs text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-[#aaaaaa] dark:hover:bg-[#222222]"
                             >
-                                Previous
+                                {t('previous')}
                             </button>
 
                             <span className="px-2 text-xs text-gray-500 dark:text-[#888888]">
@@ -167,7 +169,7 @@ export function DocumentsTable({
                                 disabled={currentPage === totalPages}
                                 className="rounded-md px-2.5 py-1.5 text-xs text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-[#aaaaaa] dark:hover:bg-[#222222]"
                             >
-                                Next
+                                {t('next')}
                             </button>
                         </div>
                     </div>
