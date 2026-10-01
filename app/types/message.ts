@@ -10,14 +10,9 @@ export type Message = {
   content: string
   sender: SenderType
   createdAt: string
-  updatedAt: string
 };
 
 export type CreateMessagePayload = {
   content: string
   sender: SenderType
 };
-
-export type SendMessageResponse = {
-  conversation: Conversation
-} & Message

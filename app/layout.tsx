@@ -29,7 +29,29 @@ export default async function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (() => {
+                const theme = document.cookie
+                  .split("; ")
+                  .find((row) => row.startsWith("theme="))
+                  ?.split("=")[1];
+                
+                if (theme === "dark") {
+                  document.documentElement.classList.add("dark");
+                } else {
+                  document.documentElement.classList.remove("dark");
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
+
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>
           <ThemeProvider>
