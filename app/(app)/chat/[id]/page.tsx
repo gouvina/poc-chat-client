@@ -6,8 +6,11 @@ import { useAuth } from "@/app/context/AuthContext";
 import { Conversation } from "@/app/types/conversation";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { sendMessage as sendMessageApi } from "@/app/api/services/messages"
+import { mockMessages } from "@/app/types/mock-data";
+
+const MAX_INPUT_LINES = 5
 
 export default function ConversationPage() {
     const t = useTranslations('Chat')
@@ -16,12 +19,20 @@ export default function ConversationPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [input, setInput] = useState("")
     const [isAwaitingAssistant, setIsAwaitingAssistant] = useState(false)
+    const [inputContainerHeight, setInputContainerHeight] = useState(0)
 
     const params = useParams()
     const conversationId = params.id as string
 
-    const inputRef = useRef<HTMLInputElement>(null)
+    const messagesContainerRef = useRef<HTMLDivElement>(null)
+    const inputRef = useRef<HTMLTextAreaElement>(null)
+    const inputContainerRef = useCallback((element: HTMLDivElement | null) => {
+        if (!element) return
 
+        setInputContainerHeight(element.getBoundingClientRect().height)
+    }, [])
+
+    // fetch conversation
     useEffect(() => {
         const fetchConversation = async () => {
             try {
@@ -35,11 +46,21 @@ export default function ConversationPage() {
         fetchConversation()
     }, [conversationId])
 
+    // Return focus to input after message sent
     useEffect(() => {
         if (!isAwaitingAssistant) {
             inputRef.current?.focus()
         }
     }, [isAwaitingAssistant])
+
+    // Scroll message thread to last message
+    useEffect(() => {
+        const container = messagesContainerRef.current
+
+        if (!container) return
+
+        container.scrollTop = container.scrollHeight
+    }, [conversation?.messages])
 
     async function sendMessage() {
         const trimmedInput = input.trim()
@@ -48,6 +69,7 @@ export default function ConversationPage() {
             return
         }
 
+        inputRef.current?.style.setProperty("height", "auto")
         setIsAwaitingAssistant(true)
         setInput("")
 
@@ -75,34 +97,59 @@ export default function ConversationPage() {
         );
     }
 
+
+    console.log("Input Container Height: ", inputContainerHeight)
+
+
     return (
         <div className="relative flex h-full min-w-0 flex-1 bg-white dark:bg-[#1c1c1c]">
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                <main className="flex min-w-0 flex-1 flex-col">
+            <div ref={messagesContainerRef} className="flex min-h-0 min-w-0 flex-1 overflow-y-auto small-scrollbar">
+                <main className="mx-auto w-[60%] min-w-0">
                     <MessageThread
                         messages={conversation.messages}
                         isAwaitingAssistant={isAwaitingAssistant}
                     />
+                    <div style={{ height: inputContainerHeight }} />
+                </main>
 
-                    <div className="border-t border-gray-100 p-4 dark:border-[#2e2e2e]">
-                        <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 dark:border-[#2e2e2e] dark:bg-[#161616]">
-                            <input
+                <div className="pointer-events-none absolute inset-x-0 bottom-0">
+                    <div ref={inputContainerRef} className="mx-auto w-[60%] pb-4">
+                        <div className="pointer-events-auto flex items-end gap-2 rounded-xl bg-[#161616] px-4 py-2">
+                            <textarea
                                 ref={inputRef}
-                                className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder-gray-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#cccccc] dark:placeholder-[#555555]"
+                                rows={1}
+                                value={input}
+                                disabled={isAwaitingAssistant}
                                 placeholder={
                                     isAwaitingAssistant
                                         ? t('messageWaiting')
                                         : t('messagePlaceholder')
                                 }
-                                value={input}
-                                disabled={isAwaitingAssistant}
-                                onChange={(e) => setInput(e.target.value)}
+                                onChange={(e) => {
+                                    setInput(e.target.value)
+
+                                    const lineHeight = parseFloat(
+                                        getComputedStyle(e.target).lineHeight
+                                    )
+                                    const maxHeight = lineHeight * MAX_INPUT_LINES
+
+                                    e.target.style.height = "auto"
+                                    e.target.style.height = `${Math.min(e.target.scrollHeight, maxHeight)}px`
+                                }}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") {
                                         e.preventDefault();
                                         void sendMessage();
                                     }
                                 }}
+                                className="
+                                    flex-1 bg-transparent resize-none 
+                                    pr-2 text-sm outline-none 
+                                    overflow-y-auot small-scrollbar
+                                    text-gray-800 placeholder-gray-400 
+                                    disabled:cursor-not-allowed disabled:opacity-60 
+                                    dark:text-[#cccccc] dark:placeholder-[#555555]
+                                "
                             />
 
                             <button
@@ -117,7 +164,7 @@ export default function ConversationPage() {
                             </button>
                         </div>
                     </div>
-                </main>
+                </div>
             </div>
         </div>
     )
