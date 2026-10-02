@@ -54,6 +54,12 @@ export default function ConversationPage() {
         try {
             const message = await sendMessageApi(conversationId, trimmedInput)
             setConversation((prev) => prev ? { ...prev, messages: [...prev.messages, message] } : prev)
+
+            window.dispatchEvent(
+                new CustomEvent("conversation-updated", {
+                    detail: { conversationId }
+                })
+            )
         } catch (err) {
             console.error(t('errors.messageSendFail'), err)
         } finally {

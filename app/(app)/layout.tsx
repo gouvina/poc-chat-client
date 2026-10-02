@@ -1,10 +1,8 @@
 "use client"
 
 import { usePathname } from "next/navigation";
-import { RenameConversationModal } from "../components/chat/RenameConversationModal";
 import { AppSidebar } from "../components/layout/AppSidebar";
 import { useAuth } from "../context/AuthContext";
-import { ConversationProvider } from "../context/ConversationContext";
 import { useTheme } from "../context/ThemeContext";
 import { Section, sectionRoutes } from "../types/app";
 import { LoginModal } from "../components/auth/LoginModal";
@@ -29,7 +27,7 @@ export default function AppLayout({
     }
 
     return (
-        <ConversationProvider>
+        <>
             <div className={`flex h-screen min-w-0 overflow-hidden bg-white dark:bg-[#1c1c1c] ${isAuthenticated ? "" : "pointer-events-none select-none blur-sm"}`}>
                 <AppSidebar
                     user={user}
@@ -43,10 +41,8 @@ export default function AppLayout({
                 </main>
             </div>
 
-            <RenameConversationModal />
-
             {!isAuthenticated ? <LoginModal /> : null}
 
-        </ConversationProvider>
+        </>
     );
 }
