@@ -1,109 +1,95 @@
-"use client";
+"use client"
 
-import { useEffect, useRef } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { useConversationContext } from "../../context/ConversationContext";
-import { MessageThread } from "../../components/chat/MessageThread";
-import { LoginModal } from "../../components/auth/LoginModal";
-import { useTranslations } from "next-intl";
+import { createConversation } from "@/app/api/services/conversations"
+import { useAuth } from "@/app/context/AuthContext"
+import { SenderType } from "@/app/types/message"
+import { useTranslations } from "next-intl"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export default function ChatPage() {
     const t = useTranslations('Chat')
-    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const router = useRouter()
+    const { user, isLoading: isAuthLoading } = useAuth()
 
-    const {
-        isLoading,
-        messages,
-        isAwaitingAssistant,
-        input,
-        setInput,
-        sendMessage,
-    } = useConversationContext();
+    const [input, setInput] = useState("")
+    const [isSending, setIsSending] = useState(false)
 
-    const messageInputRef = useRef<HTMLInputElement>(null);
-    const prevAwaitingAssistant = useRef(isAwaitingAssistant);
+    async function sendMessage() {
+        const trimmedInput = input.trim()
 
-    useEffect(() => {
-        const wasAwaiting = prevAwaitingAssistant.current;
-        prevAwaitingAssistant.current = isAwaitingAssistant;
+        if (!trimmedInput || !user || isSending) {
+            return
+        }
 
-        if (!wasAwaiting || isAwaitingAssistant) return;
+        setIsSending(true)
 
-        queueMicrotask(() => {
-            messageInputRef.current?.focus();
-        });
-    }, [isAwaitingAssistant]);
+        const createConversationUser = { id: user.id, email: user.email }
+
+        try {
+            const conversation = await createConversation(
+                createConversationUser,
+                trimmedInput,
+                { content: trimmedInput, sender: SenderType.USER }
+            )
+
+            router.push(`/chat/${conversation.id}`)
+        } catch (err) {
+            console.error(t("errors.messageSendFail"), err)
+            setIsSending(false)
+        }
+    }
 
     if (isAuthLoading) {
         return (
             <div className="flex h-full min-w-0 flex-1 items-center justify-center bg-white text-sm text-gray-400 dark:bg-[#1c1c1c] dark:text-[#888888]">
                 {t('loading')}
             </div>
-        );
+        )
     }
 
-    const isChatDisabled = !isAuthenticated;
-
     return (
-        <div className="relative flex h-full min-w-0 flex-1 bg-white dark:bg-[#1c1c1c]">
-            <div
-                className={`flex min-h-0 min-w-0 flex-1 flex-col ${isChatDisabled
-                    ? "pointer-events-none select-none blur-sm"
-                    : ""
-                    }`}
-                aria-hidden={isChatDisabled}
-            >
-                <main className="flex min-w-0 flex-1 flex-col">
-                    {isLoading ? (
-                        <div className="flex flex-1 items-center justify-center text-sm text-gray-400 dark:text-[#888888]">
-                            {t('loadingConversations')}
-                        </div>
-                    ) : (
-                        <MessageThread
-                            messages={messages}
-                            isAwaitingAssistant={isAwaitingAssistant}
-                        />
-                    )}
+        <div className="flex h-full min-w-0 flex-1 items-center justify-center bg-white dark:bg-[#1c1c1c]">
+            <div className="w-full max-w-2xl px-6">
+                <div className="
+                    flex items-center gap-2
+                    rounded-2xl border border-gray-200
+                    bg-gray-50 px-4 py-3
+                    dark:border-[#2e2e2e] dark:bg-[#222222]
+                ">
+                    <input
+                        className="
+                            flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder-gray-400 
+                            disabled:cursor-not-allowed disabled:opacity-60 
+                            dark:text-[#cccccc] dark:placeholder-[#555555]
+                        "
+                        placeholder={t('messagePlaceholder')}
+                        value={input}
+                        disabled={isSending}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault()
+                                void sendMessage()
+                            }
+                        }}
+                    />
 
-                    <div className="border-t border-gray-100 p-4 dark:border-[#2e2e2e]">
-                        <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 dark:border-[#2e2e2e] dark:bg-[#161616]">
-                            <input
-                                ref={messageInputRef}
-                                className="flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder-gray-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#cccccc] dark:placeholder-[#555555]"
-                                placeholder={
-                                    isAwaitingAssistant
-                                        ? t('messageWaiting')
-                                        : t('messagePlaceholder')
-                                }
-                                value={input}
-                                disabled={isLoading || isChatDisabled}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        void sendMessage();
-                                    }
-                                }}
-                            />
-
-                            <button
-                                className="rounded-lg bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:opacity-40 dark:bg-[#444444] dark:text-[#cccccc] dark:hover:bg-[#4a4a4a]"
-                                disabled={
-                                    isLoading ||
-                                    !input.trim() ||
-                                    isAwaitingAssistant ||
-                                    isChatDisabled
-                                }
-                                onClick={() => void sendMessage()}
-                            >
-                                ↑
-                            </button>
-                        </div>
-                    </div>
-                </main>
+                    <button
+                        type="button"
+                        className="
+                            flex items-center justify-center
+                            rounded-full w-9 h-9 text-sm text-white
+                            bg-blue-500 hover:bg-blue-600 
+                            disabled:opacity-40 disabled:hover:bg-blue-500 disabled:cursor-not-allowed
+                        "
+                        disabled={!input.trim() || isSending}
+                        onClick={sendMessage}
+                    >
+                        <span className="-translate-y-0.5">↑</span>
+                    </button>
+                </div>
             </div>
-
-            {isChatDisabled ? <LoginModal /> : null}
         </div>
-    );
+    )
 }

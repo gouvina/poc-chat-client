@@ -1,26 +1,28 @@
 "use client"
 
-import { useConversationContext } from "@/app/context/ConversationContext";
 import { useTranslations } from "next-intl";
 
-export function RenameConversationModal() {
-  const t = useTranslations('Chat.Rename')
-  const {
-    renameConversationId,
-    renameTitleDraft,
-    setRenameTitleDraft,
-    confirmRename,
-    cancelRename,
-  } = useConversationContext();
+type RenameConversationModalProps = {
+  title: string,
+  onChangeTitle: (title: string) => void
+  onSave: () => void
+  onCancel: () => void
+}
 
-  if (!renameConversationId) { return null; }
+export function RenameConversationModal({
+  title,
+  onChangeTitle,
+  onSave,
+  onCancel
+}: RenameConversationModalProps) {
+  const t = useTranslations('Chat.Rename')
 
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4"
       role="presentation"
       onPointerDown={(e) => {
-        if (e.target === e.currentTarget) cancelRename();
+        if (e.target === e.currentTarget) onCancel();
       }}
     >
       <div
@@ -40,27 +42,28 @@ export function RenameConversationModal() {
           className="mt-3"
           onSubmit={(e) => {
             e.preventDefault();
-            confirmRename();
+            onSave();
           }}
         >
           <input
             autoFocus
             className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-[#3a3a3a] dark:bg-[#1a1a1a] dark:text-[#e0e0e0] dark:focus:border-[#555555]"
-            value={renameTitleDraft}
-            onChange={(e) => setRenameTitleDraft(e.target.value)}
+            value={title}
+            onChange={(e) => onChangeTitle(e.target.value)}
             placeholder={t('placeholderTitle')}
           />
           <div className="mt-4 flex justify-end gap-2">
             <button
               type="button"
               className="rounded-md px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-[#cccccc] dark:hover:bg-[#2a2a2a]"
-              onClick={cancelRename}
+              onClick={onCancel}
             >
               {t("cancel")}
             </button>
             <button
               type="submit"
               className="rounded-md bg-blue-500 px-3 py-1.5 text-sm text-white hover:bg-blue-600 dark:bg-[#444444] dark:hover:bg-[#4a4a4a]"
+              onClick={onSave}
             >
               {t('save')}
             </button>

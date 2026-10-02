@@ -5,7 +5,7 @@ export type Conversation = {
   id: string;
   title: string;
   messages: Message[];
-  createdAt?: string;
-  updatedAt?: string
+  createdAt: string;
+  updatedAt: string
   user?: User;
 };
