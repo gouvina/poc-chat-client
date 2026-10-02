@@ -2,19 +2,19 @@
 
 import { useTranslations } from "next-intl";
 
-type RenameConversationModalProps = {
-  title: string,
-  onChangeTitle: (title: string) => void
+type RenameModalProps = {
+  name: string,
+  onChangeName: (title: string) => void
   onSave: () => void
   onCancel: () => void
 }
 
-export function RenameConversationModal({
-  title,
-  onChangeTitle,
+export function RenameModal({
+  name,
+  onChangeName,
   onSave,
   onCancel
-}: RenameConversationModalProps) {
+}: RenameModalProps) {
   const t = useTranslations('Chat.Rename')
 
   return (
@@ -48,8 +48,8 @@ export function RenameConversationModal({
           <input
             autoFocus
             className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-[#3a3a3a] dark:bg-[#1a1a1a] dark:text-[#e0e0e0] dark:focus:border-[#555555]"
-            value={title}
-            onChange={(e) => onChangeTitle(e.target.value)}
+            value={name}
+            onChange={(e) => onChangeName(e.target.value)}
             placeholder={t('placeholderTitle')}
           />
           <div className="mt-4 flex justify-end gap-2">
