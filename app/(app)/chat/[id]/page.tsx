@@ -8,7 +8,6 @@ import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { sendMessage as sendMessageApi } from "@/app/api/services/messages"
-import { mockMessages } from "@/app/types/mock-data";
 
 const MAX_INPUT_LINES = 5
 
@@ -143,9 +142,9 @@ export default function ConversationPage() {
                                     }
                                 }}
                                 className="
-                                    flex-1 bg-transparent resize-none 
-                                    pr-2 text-sm outline-none 
-                                    overflow-y-auot small-scrollbar
+                                    flex-1 resize-none mb-1
+                                    bg-transparent pr-2 text-sm outline-none
+                                    overflow-y-auto small-scrollbar
                                     text-gray-800 placeholder-gray-400 
                                     disabled:cursor-not-allowed disabled:opacity-60 
                                     dark:text-[#cccccc] dark:placeholder-[#555555]

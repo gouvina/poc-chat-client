@@ -14,6 +14,23 @@ import { createPortal } from "react-dom";
 import { RenameConversationModal } from "./RenameConversationModal";
 import { ScrollingText } from "../layout/ScrollingText";
 
+function groupConversationsByDate(conversations: Conversation[]) {
+  return conversations.reduce<Record<string, Conversation[]>>(
+    (groups, conversation) => {
+      const date = new Date(conversation.updatedAt).toLocaleDateString("en-GB")
+
+      if (!groups[date]) {
+        groups[date] = []
+      }
+
+      groups[date].push(conversation)
+
+      return groups
+    },
+    {}
+  )
+}
+
 export function ConversationList() {
   const t = useTranslations('Chat')
   const router = useRouter()
@@ -190,9 +207,11 @@ export function ConversationList() {
 
   const sortedConversations = [...conversations].sort((a, b) => new Date(b.updatedAt!).getTime() - new Date(a.updatedAt!).getTime())
 
+  const conversationsByDate = groupConversationsByDate(sortedConversations)
+
   return (
     <>
-      <div ref={conversationListRef} className="small-scrollbar min-h-0 min-w-0 flex-1 overflow-y-auto">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
 
         {/* New Chat Button */}
         <button
@@ -203,96 +222,105 @@ export function ConversationList() {
           {`+ ${t('newChat')}`}
         </button>
 
-        <p className="mb-1 mt-2 px-1 text-xs text-gray-400 dark:text-[#666666]">
-          {t('recents')}
-        </p>
-
         {/* Conversation List */}
-        {isLoading ? (
-          <div className="px-3 py-2 text-sm text-gray-400">
-            {t('loading')}
-          </div>
-        ) : (
-          <div>
-            {sortedConversations.map((chat) => {
-              return (
-                <div
-                  key={chat.id}
-                  ref={(element) => {
-                    conversationRefs.current[chat.id] = element
-                  }}
-                  className={`
-                    flex items-center gap-0.5 rounded-md transition-colors
-                    ${pathname === `/chat/${chat.id}`
-                      ? "bg-gray-200 dark:bg-[#2a2a2a]"
-                      : "hover:bg-gray-100 dark:hover:bg-[#222222]"
-                    }
-                  `}
-                >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setConversationMenuOpenId(null);
-                      handleSelectConversation(chat.id);
+        <div ref={conversationListRef} className="small-scrollbar min-h-0 min-w-0 flex-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="px-3 py-2 text-sm text-gray-400">
+              {t('loading')}
+            </div>
+          ) : Object.entries(conversationsByDate).map(([date, conversations]) => (
+            <div key={date} className="mb-4">
+              <p className="mb-1 mt-2 text-xs text-gray-400 dark:text-[#666666]">
+                {date}
+              </p>
+
+              {conversations.map((chat) => {
+                return (
+                  <div
+                    key={chat.id}
+                    ref={(element) => {
+                      conversationRefs.current[chat.id] = element
                     }}
                     className={`
-                      min-w-0 flex-1 truncate rounded-md px-3 py-2 text-left text-sm
-                      ${pathname === `/chat/${chat.id}`
-                        ? "text-gray-900 dark:text-[#eeeeee]"
-                        : "text-gray-600 dark:text-[#aaaaaa]"
+                    group flex items-center gap-0.5 rounded-md transition-colors
+                    ${pathname === `/chat/${chat.id}`
+                        ? "bg-gray-200 dark:bg-[#2a2a2a]"
+                        : "hover:bg-gray-100 dark:hover:bg-[#222222]"
                       }
-                    `}
-                  >
-                    <ScrollingText>
-                      {chat.title}
-                    </ScrollingText>
-                  </button>
-
-                  {/* Menu Button */}
-                  <div
-                    className="relative shrink-0 py-1 pr-1"
-                    data-conversation-actions
+                  `}
                   >
                     <button
                       type="button"
-                      aria-label={t('conversationOptions')}
-                      aria-expanded={conversationMenuOpenId === chat.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-
-                        if (conversationMenuOpenId === chat.id) {
-                          setConversationMenuOpenId(null);
-                          setMenuPosition(null);
-                          return;
-                        }
-
-                        const rect = e.currentTarget.getBoundingClientRect();
-
-                        setConversationMenuOpenId(chat.id);
-                        setMenuPosition({
-                          top: rect.top,
-                          left: rect.right + 4,
-                        });
+                      onClick={() => {
+                        setConversationMenuOpenId(null);
+                        handleSelectConversation(chat.id);
                       }}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:text-[#888888] dark:hover:bg-[#333333] dark:hover:text-[#cccccc]"
+                      className={`
+                      min-w-0 flex-1 truncate rounded-md px-3 py-2 text-left text-sm group-hover:pr-1
+                      ${pathname === `/chat/${chat.id}`
+                          ? "text-gray-900 dark:text-[#eeeeee]"
+                          : "text-gray-600 dark:text-[#aaaaaa]"
+                        }
+                    `}
                     >
-                      <svg
-                        aria-hidden
-                        className="h-4 w-4"
-                        fill="currentColor"
-                        viewBox="0 0 16 16"
-                      >
-                        <circle cx="3" cy="8" r="1.5" />
-                        <circle cx="8" cy="8" r="1.5" />
-                        <circle cx="13" cy="8" r="1.5" />
-                      </svg>
+                      <ScrollingText>
+                        {chat.title}
+                      </ScrollingText>
                     </button>
+
+                    {/* Menu Button */}
+                    <div
+                      className="relative shrink-0 py-1 pr-1"
+                      data-conversation-actions
+                    >
+                      <button
+                        type="button"
+                        aria-label={t('conversationOptions')}
+                        aria-expanded={conversationMenuOpenId === chat.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          if (conversationMenuOpenId === chat.id) {
+                            setConversationMenuOpenId(null);
+                            setMenuPosition(null);
+                            return;
+                          }
+
+                          const rect = e.currentTarget.getBoundingClientRect();
+
+                          setConversationMenuOpenId(chat.id);
+                          setMenuPosition({
+                            top: rect.top,
+                            left: rect.right + 4,
+                          });
+                        }}
+                        className="
+                        flex h-8 w-0 items-center justify-center
+                        rounded-md text-gray-500 
+                        opacity-0 transition-opacity 
+                        group-hover:opacity-100 group-hover:w-8
+                        hover:text-gray-700 
+                        dark:text-[#888888] dark:hover:text-[#dddddd]
+                      "
+                      >
+                        <svg
+                          aria-hidden
+                          className="h-4 w-4"
+                          fill="currentColor"
+                          viewBox="0 0 16 16"
+                        >
+                          <circle cx="3" cy="8" r="1.5" />
+                          <circle cx="8" cy="8" r="1.5" />
+                          <circle cx="13" cy="8" r="1.5" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Conversation Menu*/}
