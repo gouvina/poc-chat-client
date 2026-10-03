@@ -3,11 +3,12 @@ import { Document } from "./document"
 
 export type Query = {
     id: string
+    name: string
     question: string
     keywords: string[]
     answer: string
     user: User
     documents: Document[]
-    createdAt?: string
-    updatedAt?: string
+    createdAt: string
+    updatedAt: string
 }

@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { RenameConversationModal } from "./RenameConversationModal";
+import { RenameModal } from "./RenameConversationModal";
 import { ScrollingText } from "../layout/ScrollingText";
 
 function groupConversationsByDate(conversations: Conversation[]) {
@@ -68,7 +68,7 @@ export function ConversationList() {
     fetchConversations()
   }, [user, isAuthenticated, pathname])
 
-  // Handle menus when scrolling
+  // Handle menu when scrolling
   useEffect(() => {
     const list = conversationListRef.current;
 
@@ -184,7 +184,7 @@ export function ConversationList() {
     }
   }
 
-  async function renameConversation(title: string,) {
+  async function renameConversation(title: string) {
     if (!renameConversationId) return
 
     try {
@@ -234,67 +234,69 @@ export function ConversationList() {
                 {date}
               </p>
 
-              {conversations.map((chat) => {
-                return (
-                  <div
-                    key={chat.id}
-                    ref={(element) => {
-                      conversationRefs.current[chat.id] = element
-                    }}
-                    className={`
+              {conversations.map((chat) => (
+                <div
+                  key={chat.id}
+                  ref={(element) => {
+                    conversationRefs.current[chat.id] = element
+                  }}
+                  className={`
                     group flex items-center gap-0.5 rounded-md transition-colors
                     ${pathname === `/chat/${chat.id}`
-                        ? "bg-gray-200 dark:bg-[#2a2a2a]"
-                        : "hover:bg-gray-100 dark:hover:bg-[#222222]"
-                      }
+                      ? "bg-gray-200 dark:bg-[#2a2a2a]"
+                      : "hover:bg-gray-100 dark:hover:bg-[#222222]"
+                    }
                   `}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConversationMenuOpenId(null);
+                      handleSelectConversation(chat.id);
+                    }}
+                    className={`
+                      min-w-0 flex-1 truncate 
+                      rounded-md px-3 py-2 
+                      text-left text-sm group-hover:pr-1
+                      transition-colors
+                      ${pathname === `/chat/${chat.id}`
+                        ? "text-gray-900 dark:text-[#eeeeee]"
+                        : "text-gray-600 dark:text-[#aaaaaa]"
+                      }
+                    `}
+                  >
+                    <ScrollingText>
+                      {chat.title}
+                    </ScrollingText>
+                  </button>
+
+                  {/* Menu Button */}
+                  <div
+                    className="relative shrink-0 py-1 pr-1"
+                    data-conversation-actions
                   >
                     <button
                       type="button"
-                      onClick={() => {
-                        setConversationMenuOpenId(null);
-                        handleSelectConversation(chat.id);
-                      }}
-                      className={`
-                      min-w-0 flex-1 truncate rounded-md px-3 py-2 text-left text-sm group-hover:pr-1
-                      ${pathname === `/chat/${chat.id}`
-                          ? "text-gray-900 dark:text-[#eeeeee]"
-                          : "text-gray-600 dark:text-[#aaaaaa]"
+                      aria-label={t('conversationOptions')}
+                      aria-expanded={conversationMenuOpenId === chat.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        if (conversationMenuOpenId === chat.id) {
+                          setConversationMenuOpenId(null);
+                          setMenuPosition(null);
+                          return;
                         }
-                    `}
-                    >
-                      <ScrollingText>
-                        {chat.title}
-                      </ScrollingText>
-                    </button>
 
-                    {/* Menu Button */}
-                    <div
-                      className="relative shrink-0 py-1 pr-1"
-                      data-conversation-actions
-                    >
-                      <button
-                        type="button"
-                        aria-label={t('conversationOptions')}
-                        aria-expanded={conversationMenuOpenId === chat.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
+                        const rect = e.currentTarget.getBoundingClientRect();
 
-                          if (conversationMenuOpenId === chat.id) {
-                            setConversationMenuOpenId(null);
-                            setMenuPosition(null);
-                            return;
-                          }
-
-                          const rect = e.currentTarget.getBoundingClientRect();
-
-                          setConversationMenuOpenId(chat.id);
-                          setMenuPosition({
-                            top: rect.top,
-                            left: rect.right + 4,
-                          });
-                        }}
-                        className="
+                        setConversationMenuOpenId(chat.id);
+                        setMenuPosition({
+                          top: rect.top,
+                          left: rect.right + 4,
+                        });
+                      }}
+                      className="
                         flex h-8 w-0 items-center justify-center
                         rounded-md text-gray-500 
                         opacity-0 transition-opacity 
@@ -302,22 +304,21 @@ export function ConversationList() {
                         hover:text-gray-700 
                         dark:text-[#888888] dark:hover:text-[#dddddd]
                       "
+                    >
+                      <svg
+                        aria-hidden
+                        className="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
                       >
-                        <svg
-                          aria-hidden
-                          className="h-4 w-4"
-                          fill="currentColor"
-                          viewBox="0 0 16 16"
-                        >
-                          <circle cx="3" cy="8" r="1.5" />
-                          <circle cx="8" cy="8" r="1.5" />
-                          <circle cx="13" cy="8" r="1.5" />
-                        </svg>
-                      </button>
-                    </div>
+                        <circle cx="3" cy="8" r="1.5" />
+                        <circle cx="8" cy="8" r="1.5" />
+                        <circle cx="13" cy="8" r="1.5" />
+                      </svg>
+                    </button>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -374,9 +375,9 @@ export function ConversationList() {
         : null}
 
       {renameConversationId && (
-        <RenameConversationModal
-          title={renameTitle}
-          onChangeTitle={setRenameTitle}
+        <RenameModal
+          name={renameTitle}
+          onChangeName={setRenameTitle}
           onSave={() => void renameConversation(renameTitle)}
           onCancel={() => {
             setConversationMenuOpenId(null)
