@@ -15,9 +15,11 @@ export function MessageThread({
   emptyHint,
 }: MessageThreadProps) {
   const t = useTranslations('Chat')
+  const sortedMessages = [...messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+
   return (
     <div className="flex-1 overflow-y-auto p-4">
-      {messages.length === 0 ? (
+      {sortedMessages.length === 0 ? (
         <div className="flex h-full items-center justify-center">
           <p className="text-base text-gray-400 dark:text-[#dddddd]">
             {emptyHint ?? t('emptyMessageHint')}
@@ -25,20 +27,19 @@ export function MessageThread({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {messages.map((message) =>
-            message.sender === SenderType.USER ? (
-              <div key={message.id} className="flex justify-end">
-                <div className="max-w-[75%] break-words rounded-2xl bg-blue-500 px-4 py-2 text-sm text-white dark:bg-[#444444] dark:text-[#f1f1f1]">
-                  {message.content}
-                </div>
+          {sortedMessages.map((message) => (
+            <div key={message.id} className={`flex ${message.sender === SenderType.USER ? "justify-end" : "justify-start"}`}>
+              <div className={`
+                  max-w-[75%] break-words rounded-2xl px-4 py-2
+                  ${message.sender === SenderType.USER
+                  ? "text-sm bg-blue-500 text-white dark:bg-[#444444] dark:text-[#f1f1f1]"
+                  : "border border-gray-200 bg-gray-100 text-sm text-gray-900 dark:border-[#212121] dark:bg-[#161616] dark:text-[#d4d4d4]"
+                }
+                `}>
+                {message.content}
               </div>
-            ) : (
-              <div key={message.id} className="flex justify-start">
-                <div className="max-w-[75%] break-words rounded-2xl border border-gray-200 bg-gray-100 px-4 py-2 text-sm text-gray-900 dark:border-[#2e2e2e] dark:bg-[#161616] dark:text-[#d4d4d4]">
-                  {message.content}
-                </div>
-              </div>
-            ),
+            </div>
+          )
           )}
           {isAwaitingAssistant ? (
             <div className="flex justify-start">

@@ -117,9 +117,9 @@ export function QueryInput({ onSubmit }: QueryInputProps) {
                         aria-label={t('aria-label.sendQuestion')}
                         className={`
                             absolute right-3 mr-1
-                            flex h-9 items-center justify-center
+                            flex items-center justify-center
                             ${isQuestionMultiline ? "bottom-3" : "top-1/2 -translate-y-1/2"}
-                            rounded-full w-9
+                            rounded-full w-9 h-9
                             text-sm font-medium
                             transition-all duration-150 ease-in
                             origin-right
