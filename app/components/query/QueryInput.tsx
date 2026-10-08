@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+const MAX_KEYWORD_LENGTH = 20
+
 type QueryInputProps = {
     onSubmit: (question: string, keywords: string[]) => void
 }
@@ -18,7 +20,7 @@ export function QueryInput({ onSubmit }: QueryInputProps) {
     const addKeyword = () => {
         const keyword = keywordInput.trim()
 
-        if (!keyword || keywords.includes(keyword)) return
+        if (!keyword || keywords.includes(keyword) || keywords.length === MAX_KEYWORD_LENGTH) return
 
         setKeywords((current) => [...current, keyword])
         setKeywordInput("")

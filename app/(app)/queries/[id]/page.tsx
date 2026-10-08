@@ -9,6 +9,7 @@ import { useParams } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import { DotLoading } from "@/app/components/global/DotLoading"
 import { QueryQuestion } from "@/app/components/query/QueryQuestion"
+import { FileText } from "lucide-react";
 
 function DocumentsLoading() {
     return (
@@ -173,9 +174,7 @@ export default function QueryPage() {
                                                 dark:hover:bg-[#505050]
                                             "
                                         >
-                                            <span className="mr-3 text-base">
-                                                📄
-                                            </span>
+                                            <FileText className="mr-3 size-4" />
 
                                             <span>
                                                 {`${t('document')} ${document.id} (${t('roll')} ${document.roll.id}, ${t('page')} ${document.page})`}

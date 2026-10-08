@@ -21,6 +21,13 @@ export async function createQuery(
     })
 }
 
+export async function updateQuery(id: string, name: string) {
+    return apiFetch<Query>(`/queries/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ name })
+    })
+}
+
 export async function deleteQuery(id: string) {
     return apiFetch<Query>(`/queries/${id}`, {
         method: "DELETE",
