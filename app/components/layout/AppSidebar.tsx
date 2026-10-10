@@ -2,11 +2,11 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import type { User } from "../../types/user";
-import { ConversationList } from "../chat/ConversationList";
+import { ConversationList } from "../../(app)/chat/components/ConversationList";
 import { Section, sectionRoutes } from "@/app/types/app";
 import { useTranslations } from "next-intl";
 import { OptionsMenu } from "./OptionsMenu";
-import { QueryList } from "../query/QueryList";
+import { QueryList } from "../../(app)/queries/components/QueryList";
 import { useEffect, useRef } from "react";
 
 export type AppSidebarProps = {

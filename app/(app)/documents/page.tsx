@@ -1,13 +1,14 @@
 "use client"
 
-import { LoginModal } from "@/app/components/auth/LoginModal";
-import { DocumentsTable } from "@/app/components/documents/DocumentsTable";
+import { DocumentsTable } from "@/app/(app)/documents/components/DocumentsTable";
 import { useAuth } from "@/app/context/AuthContext";
 import { Document } from "@/app/types/document"
 import { useEffect, useState } from "react";
 import { getDocuments } from "@/app/api/services/documents";
 import { useTranslations } from "next-intl";
-import { DocumentWorkspace } from "@/app/components/documents/DocumentWorkspace";
+import { DocumentWorkspace } from "@/app/(app)/documents/components/DocumentWorkspace";
+import { mockDocuments } from "@/app/types/mock-data";
+import { DocumentsFilter } from "./components/DocumentsFilter";
 
 export default function DocumentsPage() {
     const t = useTranslations('Documents')
@@ -47,18 +48,22 @@ export default function DocumentsPage() {
         <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-[#1c1c1c]">
             <div className={"flex min-h-0 flex-1 flex-col px-6 py-6"}>
                 <DocumentWorkspace document={selectedDocument} onCloseViewer={() => setSelectedDocument(null)} showMetadata={false}>
-                    <div className="mb-6">
-                        <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
-                            {t('title')}
-                        </h1>
+                    <div className="mb-6 flex items-start justify-between gap-6">
+                        <div>
+                            <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
+                                {t('title')}
+                            </h1>
 
-                        <p className="mt-1 text-gray-500 dark:text-[#888888]">
-                            {t("subtitle")}
-                        </p>
+                            <p className="mt-1 text-gray-500 dark:text-[#888888]">
+                                {t("subtitle")}
+                            </p>
+                        </div>
+
+                        <DocumentsFilter />
                     </div>
 
                     <div className="min-h-0 flex-1">
-                        <DocumentsTable documents={documents} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
+                        <DocumentsTable documents={mockDocuments} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
                     </div>
                 </DocumentWorkspace>
             </div>
