@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import { getDocuments } from "@/app/api/services/documents";
 import { useTranslations } from "next-intl";
 import { DocumentWorkspace } from "@/app/(app)/documents/components/DocumentWorkspace";
-import { mockDocuments } from "@/app/types/mock-data";
 import { DocumentsFilter } from "./components/DocumentsFilter";
+import { useSearchParams } from "next/navigation";
 
 export default function DocumentsPage() {
     const t = useTranslations('Documents')
@@ -18,6 +18,8 @@ export default function DocumentsPage() {
     const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
+    const searchParams = useSearchParams().toString()
+
     useEffect(() => {
         if (!isAuthenticated) {
             setIsLoading(false)
@@ -25,16 +27,29 @@ export default function DocumentsPage() {
         }
 
         async function loadDocuments() {
+            setIsLoading(true)
+
             try {
-                const data = await getDocuments()
+                const params = new URLSearchParams(searchParams)
+
+                const data = await getDocuments({
+                    text: params.get("text") || undefined,
+                    version: Number(params.get("version")) || undefined,
+                    rollId: params.get("rollId") || undefined,
+                    scoreGt: Number(params.get("scoregt")) || undefined,
+                    scoreLt: Number(params.get("scorelt")) || undefined
+                })
+
                 setDocuments(data)
+            } catch (error) {
+                console.error(t('errors.documentLoadFail'), error)
             } finally {
                 setIsLoading(false)
             }
         }
 
         loadDocuments()
-    }, [isAuthenticated])
+    }, [isAuthenticated, searchParams])
 
     if (isAuthLoading) {
         return (
@@ -48,7 +63,7 @@ export default function DocumentsPage() {
         <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-[#1c1c1c]">
             <div className={"flex min-h-0 flex-1 flex-col px-6 py-6"}>
                 <DocumentWorkspace document={selectedDocument} onCloseViewer={() => setSelectedDocument(null)} showMetadata={false}>
-                    <div className="mb-6 flex items-start justify-between gap-6">
+                    <div className="mb-6 grid grid-cols-[4fr_6fr] items-end gap-6">
                         <div>
                             <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
                                 {t('title')}
@@ -63,7 +78,7 @@ export default function DocumentsPage() {
                     </div>
 
                     <div className="min-h-0 flex-1">
-                        <DocumentsTable documents={mockDocuments} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
+                        <DocumentsTable documents={documents} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
                     </div>
                 </DocumentWorkspace>
             </div>
