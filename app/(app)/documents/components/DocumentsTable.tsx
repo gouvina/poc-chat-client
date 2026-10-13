@@ -2,8 +2,9 @@
 
 import { Document } from "@/app/types/document"
 import { useTranslations } from "next-intl"
-import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+
+type SortColumn = "id" | "page" | "rollNumber" | "score"
 
 type DocumentsTableProps = {
     documents: Document[]
@@ -21,6 +22,8 @@ export function DocumentsTable({
     const t = useTranslations("Documents.Table")
     const [currentPage, setCurrentPage] = useState(1)
     const [pageSize, setPageSize] = useState(1)
+    const [sortColumn, setSortColumn] = useState<SortColumn | null>(null)
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
 
     const containerRef = useRef<HTMLDivElement>(null)
     const tableHeaderRef = useRef<HTMLTableSectionElement>(null)
@@ -59,13 +62,90 @@ export function DocumentsTable({
         setCurrentPage(1)
     }, [pageSize])
 
-    const totalPages = Math.max(1, Math.ceil(documents.length / pageSize))
+    const sortedDocuments = [...documents].sort((a, b) => {
+        if (!sortColumn) return 0
+
+        let valueA: number | null
+        let valueB: number | null
+
+        switch (sortColumn) {
+            case "id":
+                valueA = a.id
+                valueB = b.id
+                break
+            case "rollNumber":
+                valueA = a.roll.id
+                valueB = b.roll.id
+                break
+            case "page":
+                valueA = a.page ?? null
+                valueB = b.page ?? null
+                break
+            case "score":
+                valueA = a.score ?? null
+                valueB = b.score ?? null
+                break
+        }
+
+        if (valueA === null && valueB === null) return 0
+        if (valueA === null) return 1
+        if (valueB === null) return -1
+
+        const comparison = valueA - valueB
+
+        return sortDirection === "asc" ? comparison : -comparison
+    })
+
+    const totalPages = Math.max(1, Math.ceil(sortedDocuments.length / pageSize))
 
     const startIndex = (currentPage - 1) * pageSize
-    const paginateDocuments = documents.slice(
+    const paginateDocuments = sortedDocuments.slice(
         startIndex,
         startIndex + pageSize,
     )
+
+    const handleColumnSort = (column: SortColumn) => {
+        if (sortColumn === column) {
+            setSortDirection(prev => prev === "asc" ? "desc" : "asc")
+        } else {
+            setSortColumn(column)
+            setSortDirection("asc")
+        }
+    }
+
+    const SortButton = ({ column }: { column: SortColumn }) => {
+        const isSorted = sortColumn === column
+
+        return (
+            <button
+                type="button"
+                onClick={() => handleColumnSort(column)}
+                aria-label={`${t('sortBy')} ${t(`rowHeaders.${column}`)}`}
+                className={`
+                    ml-1 inline-flex h-4 w-4 items-center justify-center
+                    transition-opacity
+                    ${isSorted
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }
+                `}
+            >
+                <span className={`
+                    block h-0 w-0
+                    border-l-[4px] border-r-[4px] border-l-transparent border-r-transparent
+                    border-b-[5px]
+                    ${isSorted
+                        ? "border-b-[#aaaaaa]"
+                        : "border-b-[#777777]"
+                    }
+                    ${isSorted && sortDirection === "desc"
+                        ? "rotate-180"
+                        : ""
+                    }
+                `} />
+            </button>
+        )
+    }
 
     const goToPage = (page: number) => {
         setCurrentPage(Math.min(Math.max(page, 1), totalPages))
@@ -82,24 +162,37 @@ export function DocumentsTable({
                 </div>
             ) : (
                 <>
+                    {/* Table */}
                     <div className="w-full overflow-x-auto small-scrollbar rounded-lg border border-gray-200 dark:border-[#2e2e2e]">
                         <table className="w-full whitespace-nowrap text-left text-sm">
                             <thead ref={tableHeaderRef} className="bg-gray-50 dark:bg-[#2e2e2e]">
                                 <tr>
-                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                        {t('rowHeaders.id')}
+                                    <th className="group px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        <div className="flex items-center">
+                                            {t('rowHeaders.id')}
+                                            <SortButton column="id" />
+                                        </div>
                                     </th >
-                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                        {t('rowHeaders.rollNumber')}
+                                    <th className="group px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        <div className="flex items-center">
+                                            {t('rowHeaders.rollNumber')}
+                                            <SortButton column="rollNumber" />
+                                        </div>
                                     </th>
-                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                        {t('rowHeaders.page')}
+                                    <th className="group px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        <div className="flex items-center">
+                                            {t('rowHeaders.page')}
+                                            <SortButton column="page" />
+                                        </div>
                                     </th>
                                     <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
                                         {t('rowHeaders.version')}
                                     </th>
-                                    <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
-                                        {t('rowHeaders.score')}
+                                    <th className="group px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
+                                        <div className="flex items-center">
+                                            {t('rowHeaders.score')}
+                                            <SortButton column="score" />
+                                        </div>
                                     </th>
                                     <th className="px-4 py-3 font-medium text-gray-600 dark:text-[#aaaaaa]">
                                         {t('rowHeaders.rollName')}
@@ -147,6 +240,7 @@ export function DocumentsTable({
                         </table >
                     </div>
 
+                    {/* Pagination Controls */}
                     <div ref={paginationRef} className="mt-3 flex shrink-0 items-center justify-between">
                         <p className="text-xs text-gray-400 dark:text-[#777777]">
                             {documents.length === 0
