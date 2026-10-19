@@ -1,6 +1,7 @@
 import {
   AuthResponse,
   LoginCredentials,
+  LogoutResponse,
   RegisterCredentials,
 } from "@/app/types/auth";
 import { User } from "@/app/types/user";
@@ -30,4 +31,11 @@ export async function register(credentials: RegisterCredentials) {
 
 export async function getMe() {
   return apiFetch<User>("/auth/me");
+}
+
+export async function logout() {
+  return apiFetch<LogoutResponse>("/auth/logout", {
+    method: "POST",
+    auth: false,
+  })
 }

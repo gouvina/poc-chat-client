@@ -1,6 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-export const ACCESS_TOKEN_STORAGE_KEY = "poc-chat-access-token";
-export const REFRESH_TOKEN_STORAGE_KEY = "poc-chat-refresh-token";
+
 export const AUTH_SESSION_EXPIRED_EVENT = "poc-chat-auth-session-expired";
 
 export class ApiError extends Error {
@@ -13,76 +12,31 @@ export class ApiError extends Error {
   }
 }
 
-export function getStoredAccessToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+type ApiFetchOptions = RequestInit & {
+  auth?: boolean
 }
 
-export function getStoredRefreshToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
-}
-
-export function setStoredTokens(accessToken: string | null, refreshToken: string | null) {
+export function notifyAuthSessionExpired() {
   if (typeof window === "undefined") return;
-  if (accessToken) {
-    localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, accessToken);
-  } else {
-    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  }
-  if (refreshToken) {
-    localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
-  } else {
-    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-  }
+
+  window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
 }
 
-type RefreshResponse = {
-  accessToken: string;
-};
-
-export async function refreshAccessToken(): Promise<string> {
-  const refreshToken = getStoredRefreshToken();
-
-  if (!refreshToken) {
-    throw new ApiError(401, "No refresh token available");
-  }
-
+async function refreshAccessToken(): Promise<void> {
   const response = await fetch(`${API_URL}/auth/refresh`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      refreshToken,
-    }),
-  });
+    credentials: "include",
+  })
 
   if (!response.ok) {
     notifyAuthSessionExpired();
     throw new ApiError(401, "Refresh token expired or invalid");
   }
-
-  const data = (await response.json()) as RefreshResponse;
-
-  setStoredTokens(data.accessToken, refreshToken);
-
-  return data.accessToken;
 }
 
-export function notifyAuthSessionExpired() {
-  if (typeof window === "undefined") return;
-  setStoredTokens(null, null);
-  window.dispatchEvent(new Event(AUTH_SESSION_EXPIRED_EVENT));
-}
+let refreshPromise: Promise<void> | null = null
 
-type ApiFetchOptions = RequestInit & {
-  auth?: boolean;
-};
-
-let refreshPromise: Promise<string> | null = null;
-
-function getNewAccessToken(): Promise<string> {
+function getNewAccessToken(): Promise<void> {
   if (!refreshPromise) {
     refreshPromise = refreshAccessToken().finally(() => {
       refreshPromise = null;
@@ -104,31 +58,27 @@ export async function apiFetch<T>(
 
   const { auth = true, headers, ...rest } = options ?? {};
 
-  const makeRequest = async (token?: string) => {
+  const makeRequest = async () => {
     const requestHeaders = new Headers(headers)
 
-    requestHeaders.set("Content-Type", "application/json")
-
-    if (auth && token) {
-      requestHeaders.set("Authorization", `Bearer ${token}`)
+    if (rest.body && !requestHeaders.has("Content-Type")) {
+      requestHeaders.set("Content-Type", "application/json")
     }
 
     return fetch(`${API_URL}${path}`, {
-      headers: requestHeaders,
       ...rest,
+      headers: requestHeaders,
+      credentials: "include"
     })
   }
 
-  let token = auth ? getStoredAccessToken() : null
-
-  let response = await makeRequest(token ?? undefined)
+  let response = await makeRequest()
 
 
   if (response.status === 401 && auth) {
     try {
-      token = await getNewAccessToken()
-
-      response = await makeRequest(token)
+      await getNewAccessToken()
+      response = await makeRequest()
     } catch {
       throw new ApiError(401, "Authentication session expired")
     }
