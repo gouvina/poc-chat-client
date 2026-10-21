@@ -1,87 +1,39 @@
-"use client"
+import { getDocuments } from "@/app/api/services/documents"
+import { DocumentsClientPage } from "./page.client"
 
-import { DocumentsTable } from "@/app/(app)/documents/components/DocumentsTable";
-import { useAuth } from "@/app/context/AuthContext";
-import { Document } from "@/app/types/document"
-import { useEffect, useState } from "react";
-import { getDocuments } from "@/app/api/services/documents";
-import { useTranslations } from "next-intl";
-import { DocumentWorkspace } from "@/app/(app)/documents/components/DocumentWorkspace";
-import { DocumentsFilter } from "./components/DocumentsFilter";
-import { useSearchParams } from "next/navigation";
+type Props = {
+    searchParams: Promise<{
+        text?: string;
+        version?: string;
+        rollId?: string;
+        scoregt?: string;
+        scorelt?: string;
+        auth?: string
+    }>
+}
 
-export default function DocumentsPage() {
-    const t = useTranslations('Documents')
+export default async function DocumentsPage({ searchParams }: Props) {
+    const params = await searchParams
 
-    const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
-    const [documents, setDocuments] = useState<Document[]>([])
-    const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
-
-    const searchParams = useSearchParams().toString()
-
-    useEffect(() => {
-        if (!isAuthenticated) {
-            setIsLoading(false)
-            return
-        }
-
-        async function loadDocuments() {
-            setIsLoading(true)
-
-            try {
-                const params = new URLSearchParams(searchParams)
-
-                const data = await getDocuments({
-                    text: params.get("text") || undefined,
-                    version: Number(params.get("version")) || undefined,
-                    rollId: params.get("rollId") || undefined,
-                    scoreGt: Number(params.get("scoregt")) || undefined,
-                    scoreLt: Number(params.get("scorelt")) || undefined
-                })
-
-                setDocuments(data)
-            } catch (error) {
-                console.error(t('errors.documentLoadFail'), error)
-            } finally {
-                setIsLoading(false)
-            }
-        }
-
-        loadDocuments()
-    }, [isAuthenticated, searchParams])
-
-    if (isAuthLoading) {
-        return (
-            <div className="flex h-full min-w-0 flex-1 items-center justify-center bg-white text-sm text-gray-400 dark:bg-[#1c1c1c] dark:text-[#888888]">
-                Loading…
-            </div>
-        )
+    if (params.auth === "expired") {
+        return <DocumentsClientPage initialDocuments={[]} />
     }
 
-    return (
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-[#1c1c1c]">
-            <div className={"flex min-h-0 flex-1 flex-col px-6 py-6"}>
-                <DocumentWorkspace document={selectedDocument} onCloseViewer={() => setSelectedDocument(null)} showMetadata={false}>
-                    <div className="mb-6 grid grid-cols-[4fr_6fr] items-end gap-6">
-                        <div>
-                            <h1 className="text-xl font-semibold text-gray-900 dark:text-[#eeeeee]">
-                                {t('title')}
-                            </h1>
+    const queryString = new URLSearchParams(
+        Object.entries(params).filter(
+            ([, value]) => value !== undefined
+        ) as [string, string][]
+    ).toString()
 
-                            <p className="mt-1 text-gray-500 dark:text-[#888888]">
-                                {t("subtitle")}
-                            </p>
-                        </div>
+    const returnTo = `/documents${queryString ? `?${queryString}` : ""}`
 
-                        <DocumentsFilter />
-                    </div>
+    const documents = await getDocuments(returnTo, {
+        text: params.text || undefined,
+        version: Number(params.version) || undefined,
+        rollId: params.rollId || undefined,
+        scoreGt: Number(params.scoregt) || undefined,
+        scoreLt: Number(params.scorelt) || undefined
+    })
 
-                    <div className="min-h-0 flex-1">
-                        <DocumentsTable documents={documents} isLoading={isLoading} onClickDocument={setSelectedDocument} selectedDocumentId={selectedDocument?.id} />
-                    </div>
-                </DocumentWorkspace>
-            </div>
-        </div>
-    )
+    return <DocumentsClientPage initialDocuments={documents} />
 }

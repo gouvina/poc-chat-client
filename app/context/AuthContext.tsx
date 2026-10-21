@@ -9,6 +9,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import {
+  useRouter,
+  usePathname,
+  useSearchParams,
+} from "next/navigation";
 import { getMe, login as loginApi, register as registerApi, logout as logoutApi } from "../api/services/auth";
 import { AUTH_SESSION_EXPIRED_EVENT } from "../api/client";
 import type { LoginCredentials, RegisterCredentials } from "../types/auth";
@@ -26,6 +31,10 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -40,6 +49,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
     };
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get("auth") === "expired") {
+      setUser(null)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     let cancelled = false;
@@ -68,20 +83,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const clearExpiredAuthParams = useCallback(() => {
+    if (searchParams.get("auth") !== "expired") {
+      return
+    }
+
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("auth")
+
+    const query = params.toString()
+    router.replace(`${pathname}${query ? `?${query}` : ""}`)
+  }, [pathname, router, searchParams])
+
   const login = useCallback(
     async (credentials: LoginCredentials) => {
       const response = await loginApi(credentials);
       setUser(response.user)
+      clearExpiredAuthParams()
     },
-    [],
+    [clearExpiredAuthParams],
   );
 
   const register = useCallback(
     async (credentials: RegisterCredentials) => {
       const response = await registerApi(credentials);
       setUser(response.user)
+      clearExpiredAuthParams()
     },
-    [],
+    [clearExpiredAuthParams],
   );
 
   const logout = useCallback(async () => {

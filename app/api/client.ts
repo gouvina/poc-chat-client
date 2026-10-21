@@ -78,10 +78,16 @@ export async function apiFetch<T>(
   if (response.status === 401 && auth) {
     try {
       await getNewAccessToken()
-      response = await makeRequest()
     } catch {
       throw new ApiError(401, "Authentication session expired")
     }
+
+    response = await makeRequest()
+  }
+
+  if (response.status === 401) {
+    notifyAuthSessionExpired()
+    throw new ApiError(401, "Authentication session expired")
   }
 
   if (!response.ok) {

@@ -96,10 +96,6 @@ export default function ConversationPage() {
         );
     }
 
-
-    console.log("Input Container Height: ", inputContainerHeight)
-
-
     return (
         <div className="relative flex h-full min-w-0 flex-1 bg-white dark:bg-[#1c1c1c]">
             <div ref={messagesContainerRef} className="flex min-h-0 min-w-0 flex-1 overflow-y-auto small-scrollbar">
