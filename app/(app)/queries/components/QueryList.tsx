@@ -60,7 +60,7 @@ export function QueryList() {
             if (!user || !isAuthenticated) return
 
             try {
-                const data = await getQueries(user.id)
+                const data = await getQueries()
                 setQueries(data)
             } finally {
                 setIsLoading(false)

@@ -46,8 +46,6 @@ export async function GET(request: NextRequest) {
     const target = getReturnTo(request)
     const refreshToken = request.cookies.get("refresh_token")?.value
 
-    console.log("Refresh Token: ", refreshToken)
-
     let upstream: Response | undefined
 
     if (API_URL && refreshToken) {
@@ -59,9 +57,7 @@ export async function GET(request: NextRequest) {
                 },
                 cache: "no-store",
             })
-            console.log("Upstream: ", upstream)
         } catch (err) {
-            console.log("upstream error: ", err)
             return redirectToExpired(target)
         }
     }
