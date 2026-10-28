@@ -1,5 +1,7 @@
 import { getConversation } from "@/app/api/services/conversations/conversations.server"
 import ConversationClientPage from "./page.client"
+import { ApiError } from "@/app/api/client"
+import { redirect } from "next/navigation"
 
 type Props = {
     params: Promise<{
@@ -18,12 +20,24 @@ export default async function ConversationPage({ params, searchParams }: Props) 
         return null
     }
 
-    const conversation = await getConversation(id)
+    try {
+        const conversation = await getConversation(id)
 
-    return (
-        <ConversationClientPage
-            key={id}
-            initialConversation={conversation}
-        />
-    )
+
+        return (
+            <ConversationClientPage
+                key={id}
+                initialConversation={conversation}
+            />
+        )
+    } catch (error) {
+        if (
+            error instanceof ApiError &&
+            [400, 404].includes(error.status)
+        ) {
+            redirect("/chat")
+        }
+
+        throw error
+    }
 }

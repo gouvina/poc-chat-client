@@ -52,70 +52,50 @@ export function QueryInput({ onSubmit }: QueryInputProps) {
         setQuestion(textarea.value)
     }
 
-    const handleSubmit = () => {
-        if (!question.trim()) return
-
-        if (isSubmitting) return
+    const handleSubmit = async () => {
+        if (!question.trim() || isSubmitting) return
 
         setIsSubmitting(true)
 
-        setTimeout(() => {
-            onSubmit(question, keywords)
-        }, 50)
-
+        try {
+            await onSubmit(question, keywords)
+        } catch (error) {
+            console.error("There was an error submiting: ", error)
+            setIsSubmitting(false)
+        }
     }
 
     return (
         <div className="relative w-full">
             <div className="flex items-center gap-3">
-                <div className={`
-                    relative min-w-0 flex-1
-                    transition-all duration-150 ease-in-out
-                    ${isSubmitting
-                        ? "ml-auto w-[%80]"
-                        : "w-full"
-                    }
-                `}>
+                <div className="relative min-w-0 w-full flex-1">
                     <textarea
                         value={question}
                         onChange={handleQuestionChange}
                         placeholder={t('questionInput')}
                         rows={1}
-                        className={`
+                        className="
                             block w-full resize-none
                             min-h-12 max-h-[360px]
                             overflow-y-hidden small-scrollbar
                             rounded-2xl
-                            px-5 py-3
+                            border border-gray-200
+                            bg-white
+                            px-5 py-3 pr-20
                             text-sm leading-6
+                            text-gray-900
+                            placeholder:text-gray-400
                             outline-none
-                            transition-all duration-150 ease-in-out
-                            pr-20
-                            ${isSubmitting
-                                ? `
-                                    border-transparent
-                                    bg-gray-100
-                                    text-gray-900
-                                    dark:border-transparent
-                                    dark:bg-[#282828]
-                                    dark:text-[#eeeeee]`
-                                : `
-                                    border border-gray-200
-                                    bg-white
-                                    text-gray-900
-                                    placeholder:text-gray-400
-                                    dark:border-[#2e2e2e]
-                                    dark:bg-[#222222]
-                                    dark:text-[#eeeeee]
-                                    dark:placeholder:text-[#777777]`
-                            }
-                        `}
+                            dark:border-[#2e2e2e]
+                            dark:bg-[#222222]
+                            dark:text-[#eeeeee]
+                            dark:placeholder:text-[#777777]
+                        "
                     />
-
                     <button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={!question.trim()}
+                        disabled={!question.trim() || isSubmitting}
                         aria-label={t('aria-label.sendQuestion')}
                         className={`
                             absolute right-3 mr-1
@@ -123,15 +103,10 @@ export function QueryInput({ onSubmit }: QueryInputProps) {
                             ${isQuestionMultiline ? "bottom-3" : "top-1/2 -translate-y-1/2"}
                             rounded-full w-9 h-9
                             text-sm font-medium
-                            transition-all duration-150 ease-in
-                            origin-right
-                            ${isSubmitting
-                                ? "scale-0 opacity-0"
-                                : "scale-x-100 opacity-100"
-                            }
+                            bg-blue-500 text-white
+                            hover:bg-blue-600
                             disabled:cursor-not-allowed
                             disabled:opacity-40
-                            bg-blue-500 text-white hover:bg-blue-600
                         `}
                     >
                         <span className="-translate-y-0.5">↑</span>
@@ -139,14 +114,7 @@ export function QueryInput({ onSubmit }: QueryInputProps) {
                 </div>
             </div>
 
-            <div className={`
-                absolute left-0 right-0 top-full mt-3
-                transition-all duration-150 ease-in
-                ${isSubmitting
-                    ? "-translate-y-2 opacity-0"
-                    : "translate-y-0 opacity-100"
-                }
-            `}>
+            <div className="absolute left-0 right-0 top-full mt-3">
                 <div className="flex min-w-0 items-start gap-2">
                     <div className="shrink-0">
                         <div className="flex h-9 items-center rounded-full border border-gray-200 bg-white px-3 dark:border-[#2e2e2e] dark:bg-[#222222]">
@@ -171,20 +139,20 @@ export function QueryInput({ onSubmit }: QueryInputProps) {
                                 onClick={addKeyword}
                                 aria-label={t('aria-label.addKeyword')}
                                 className={`
-                                ml-1
-                                flex h-5 w-5 shrink-0
-                                items-center justify-center
-                                rounded-full
-                                text-sm leading-none
-                                text-gray-400
-                                transition-colors
-                                hover:bg-gray-100
-                                hover:text-gray-700
-                                dark:text-[#888888]
-                                dark:hover:bg-[#2e2e2e]
-                                dark:hover:text-[#dddddd]
-                                ${keywordInput.trim() ? "opacity-100" : "pointer-events-none opacity-0"}
-                            `}
+                                    ml-1
+                                    flex h-5 w-5 shrink-0
+                                    items-center justify-center
+                                    rounded-full
+                                    text-sm leading-none
+                                    text-gray-400
+                                    transition-colors
+                                    hover:bg-gray-100
+                                    hover:text-gray-700
+                                    dark:text-[#888888]
+                                    dark:hover:bg-[#2e2e2e]
+                                    dark:hover:text-[#dddddd]
+                                    ${keywordInput.trim() ? "opacity-100" : "pointer-events-none opacity-0"}
+                                `}
                             >
                                 +
                             </button>

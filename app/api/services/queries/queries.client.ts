@@ -1,5 +1,5 @@
 import { Query } from "@/app/types/queries";
-import { apiFetch } from "../client";
+import { apiFetch } from "../../client";
 import { User } from "@/app/types/user";
 
 export async function getQueries() {

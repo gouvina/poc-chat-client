@@ -4,7 +4,7 @@ import {
     getQueries,
     deleteQuery as deleteQueryApi,
     updateQuery as updateQueryApi
-} from "@/app/api/services/queries"
+} from "@/app/api/services/queries/queries.client"
 import { useAuth } from "@/app/context/AuthContext"
 import { Query } from "@/app/types/queries"
 import { useTranslations } from "next-intl"

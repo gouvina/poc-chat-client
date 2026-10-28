@@ -100,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await loginApi(credentials);
       setUser(response.user)
       clearExpiredAuthParams()
+      router.refresh()
     },
     [clearExpiredAuthParams],
   );
