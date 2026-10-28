@@ -40,6 +40,7 @@ export default function DocumentsPage() {
                     scoreLt: Number(params.get("scorelt")) || undefined
                 })
 
+                setSelectedDocument(null)
                 setDocuments(data)
             } catch (error) {
                 console.error(t('errors.documentLoadFail'), error)
