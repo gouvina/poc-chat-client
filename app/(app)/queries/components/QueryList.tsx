@@ -14,7 +14,6 @@ import { useEffect, useRef, useState } from "react"
 import { ScrollingText } from "../../../components/layout/ScrollingText"
 import { createPortal } from "react-dom"
 import { RenameModal } from "../../chat/components/RenameConversationModal"
-import { mockQueries } from "@/app/types/mock-data"
 
 function groupQueriesByDate(queries: Query[]) {
     return queries.reduce<Record<string, Query[]>>(
