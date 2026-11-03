@@ -1,10 +1,10 @@
 import { Conversation } from "@/app/types/conversation";
 import { CreateMessagePayload } from "@/app/types/message";
 import { User } from "@/app/types/user";
-import { apiFetch } from "../client";
+import { apiFetch } from "@/app/api/client"
 
-export async function getConversations(userId: string) {
-  return apiFetch<Conversation[]>(`/conversations?userId=${userId}`);
+export async function getConversations() {
+  return apiFetch<Conversation[]>(`/conversations`);
 }
 
 export async function getConversation(id: string) {

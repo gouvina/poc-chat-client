@@ -9,12 +9,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getMe, login as loginApi, register as registerApi } from "../api/services/auth";
 import {
-  AUTH_SESSION_EXPIRED_EVENT,
-  getStoredAccessToken,
-  setStoredTokens,
-} from "../api/client";
+  useRouter,
+  usePathname,
+  useSearchParams,
+} from "next/navigation";
+import { getMe, login as loginApi, register as registerApi, logout as logoutApi } from "../api/services/auth";
+import { AUTH_SESSION_EXPIRED_EVENT } from "../api/client";
 import type { LoginCredentials, RegisterCredentials } from "../types/auth";
 import type { User } from "../types/user";
 
@@ -24,12 +25,16 @@ type AuthContextValue = {
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,21 +44,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+
     return () => {
       window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
     };
   }, []);
 
   useEffect(() => {
+    if (searchParams.get("auth") === "expired") {
+      setUser(null)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
     let cancelled = false;
 
     async function restoreSession() {
-      const token = getStoredAccessToken();
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
       try {
         const profile = await getMe();
         if (!cancelled) {
@@ -77,30 +83,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const applyAuthResponse = useCallback((accessToken: string, refreshToken: string, nextUser: User) => {
-    setStoredTokens(accessToken, refreshToken);
-    setUser(nextUser);
-  }, []);
+  const clearExpiredAuthParams = useCallback(() => {
+    if (searchParams.get("auth") !== "expired") {
+      return
+    }
+
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("auth")
+
+    const query = params.toString()
+    router.replace(`${pathname}${query ? `?${query}` : ""}`)
+  }, [pathname, router, searchParams])
 
   const login = useCallback(
     async (credentials: LoginCredentials) => {
       const response = await loginApi(credentials);
-      applyAuthResponse(response.accessToken, response.refreshToken, response.user);
+      setUser(response.user)
+      clearExpiredAuthParams()
+      router.refresh()
     },
-    [applyAuthResponse],
+    [clearExpiredAuthParams],
   );
 
   const register = useCallback(
     async (credentials: RegisterCredentials) => {
       const response = await registerApi(credentials);
-      applyAuthResponse(response.accessToken, response.refreshToken, response.user);
+      setUser(response.user)
+      clearExpiredAuthParams()
     },
-    [applyAuthResponse],
+    [clearExpiredAuthParams],
   );
 
-  const logout = useCallback(() => {
-    setStoredTokens(null, null);
-    setUser(null);
+  const logout = useCallback(async () => {
+    try {
+      await logoutApi()
+    } finally {
+      setUser(null)
+    }
   }, []);
 
   const value = useMemo(
@@ -115,7 +134,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [user, isLoading, login, register, logout],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

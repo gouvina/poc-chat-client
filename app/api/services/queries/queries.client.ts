@@ -1,9 +1,9 @@
 import { Query } from "@/app/types/queries";
-import { apiFetch } from "../client";
+import { apiFetch } from "../../client";
 import { User } from "@/app/types/user";
 
-export async function getQueries(userId: string) {
-    return apiFetch<Query[]>(`/queries?userId=${userId}`)
+export async function getQueries() {
+    return apiFetch<Query[]>(`/queries`)
 }
 
 export async function getQuery(id: string) {

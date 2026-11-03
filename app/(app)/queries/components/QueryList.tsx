@@ -4,7 +4,7 @@ import {
     getQueries,
     deleteQuery as deleteQueryApi,
     updateQuery as updateQueryApi
-} from "@/app/api/services/queries"
+} from "@/app/api/services/queries/queries.client"
 import { useAuth } from "@/app/context/AuthContext"
 import { Query } from "@/app/types/queries"
 import { useTranslations } from "next-intl"
@@ -14,7 +14,6 @@ import { useEffect, useRef, useState } from "react"
 import { ScrollingText } from "../../../components/layout/ScrollingText"
 import { createPortal } from "react-dom"
 import { RenameModal } from "../../chat/components/RenameConversationModal"
-import { mockQueries } from "@/app/types/mock-data"
 
 function groupQueriesByDate(queries: Query[]) {
     return queries.reduce<Record<string, Query[]>>(
@@ -60,7 +59,7 @@ export function QueryList() {
             if (!user || !isAuthenticated) return
 
             try {
-                const data = await getQueries(user.id)
+                const data = await getQueries()
                 setQueries(data)
             } finally {
                 setIsLoading(false)

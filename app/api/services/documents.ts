@@ -1,4 +1,4 @@
-import { apiFetch } from "../client";
+import { apiFetch } from "../server-client";
 import { Document } from "@/app/types/document"
 
 type DocumentFilters = {
@@ -9,7 +9,7 @@ type DocumentFilters = {
     scoreLt?: number
 }
 
-export async function getDocuments(filters?: DocumentFilters) {
+export async function getDocuments(returnTo: string, filters?: DocumentFilters) {
     const params = new URLSearchParams()
 
     if (filters?.text) params.set("text", filters.text)
@@ -20,5 +20,5 @@ export async function getDocuments(filters?: DocumentFilters) {
 
     const query = params.toString()
 
-    return apiFetch<Document[]>(`/documents${query ? `?${query}` : ""}`)
+    return apiFetch<Document[]>(`/documents${query ? `?${query}` : ""}`, returnTo)
 }

@@ -4,7 +4,7 @@ import {
   getConversations,
   deleteConversation as deleteConversationApi,
   updateConversation as updateConversationApi,
-} from "@/app/api/services/conversations";
+} from "@/app/api/services/conversations/conversations.client";
 import { useAuth } from "@/app/context/AuthContext";
 import { Conversation } from "@/app/types/conversation";
 import { useTranslations } from "next-intl";
@@ -58,7 +58,7 @@ export function ConversationList() {
       if (!user || !isAuthenticated) return
 
       try {
-        const data = await getConversations(user.id)
+        const data = await getConversations()
         setConversations(data)
       } finally {
         setIsLoading(false)
