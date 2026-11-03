@@ -1,14 +1,14 @@
 "use client"
 
 import { getQuery } from "@/app/api/services/queries"
-import { DocumentWorkspace } from "@/app/components/documents/DocumentWorkspace"
+import { DocumentWorkspace } from "@/app/(app)/documents/components/DocumentWorkspace"
 import { Query } from "@/app/types/queries"
 import { Document } from "@/app/types/document"
 import { useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
 import { useEffect, useState, useCallback } from "react"
 import { DotLoading } from "@/app/components/global/DotLoading"
-import { QueryQuestion } from "@/app/components/query/QueryQuestion"
+import { QueryQuestion } from "@/app/(app)/queries/components/QueryQuestion"
 import { FileText } from "lucide-react";
 
 function DocumentsLoading() {

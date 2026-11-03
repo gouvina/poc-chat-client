@@ -76,6 +76,7 @@
             "document": "Documento",
             "roll": "Rollo",
             "page": "Hoja",
+            "sortBy": "Ordenar por",
             "rowHeaders": {
                 "id": "ID",
                 "rollNumber": "Numero de Rollo",

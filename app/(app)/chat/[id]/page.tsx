@@ -1,7 +1,7 @@
 "use client"
 
 import { getConversation } from "@/app/api/services/conversations";
-import { MessageThread } from "@/app/components/chat/MessageThread";
+import { MessageThread } from "@/app/(app)/chat/components/MessageThread";
 import { useAuth } from "@/app/context/AuthContext";
 import { Conversation } from "@/app/types/conversation";
 import { useTranslations } from "next-intl";

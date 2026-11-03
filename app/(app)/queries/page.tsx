@@ -1,7 +1,7 @@
 "use client"
 
 import { createQuery } from "@/app/api/services/queries";
-import { QueryInput } from "@/app/components/query/QueryInput";
+import { QueryInput } from "@/app/(app)/queries/components/QueryInput";
 import { useAuth } from "@/app/context/AuthContext";
 import { sectionRoutes } from "@/app/types/app";
 import { useRouter } from "next/navigation";

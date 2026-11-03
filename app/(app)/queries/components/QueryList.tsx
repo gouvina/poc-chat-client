@@ -11,9 +11,9 @@ import { useTranslations } from "next-intl"
 import { usePathname } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
-import { ScrollingText } from "../layout/ScrollingText"
+import { ScrollingText } from "../../../components/layout/ScrollingText"
 import { createPortal } from "react-dom"
-import { RenameModal } from "../chat/RenameConversationModal"
+import { RenameModal } from "../../chat/components/RenameConversationModal"
 import { mockQueries } from "@/app/types/mock-data"
 
 function groupQueriesByDate(queries: Query[]) {

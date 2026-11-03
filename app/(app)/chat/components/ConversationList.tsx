@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { RenameModal } from "./RenameConversationModal";
-import { ScrollingText } from "../layout/ScrollingText";
+import { ScrollingText } from "../../../components/layout/ScrollingText";
 
 function groupConversationsByDate(conversations: Conversation[]) {
   return conversations.reduce<Record<string, Conversation[]>>(
